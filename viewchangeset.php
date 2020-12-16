@@ -25,11 +25,11 @@
 
 require_once(dirname(__FILE__).'/../../config.php');
 
-$PAGE->requires->js(new moodle_url('https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js'));
+$PAGE->requires->js(new moodle_url('/local/versioncontrol/lib/diff2html.js'));
 $PAGE->requires->css(new moodle_url('https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css'));
 
 $PAGE->requires->js_call_amd('local_versioncontrol/diffrenderer', 'init');
-
+$PAGE->set_url('/local/versioncontrol/viewchangeset.php');
 echo $OUTPUT->header();
 echo html_writer::div('', 'myDiffElement', ['id' => 'myDiffElement']);
 

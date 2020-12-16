@@ -21,8 +21,8 @@
  * @copyright   2018 David Mudrák <david@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([
-], function() {
+define(['Diff2Html'
+], function(Diff2Html) {
 
     "use strict";
 
@@ -33,6 +33,7 @@ define([
          * @return {formenhancements}
          */
         init: function() {
+
             const diffString = `diff --git a/sample.js b/sample.js
 index 0000001..0ddf2ba
 --- a/sample.js
@@ -46,6 +47,7 @@ index 0000001..0ddf2ba
                 matching: 'lines',
                 outputFormat: 'side-by-side',
             });
+
             document.getElementById('myDiffElement').innerHTML = diffHtml;
         }
     };
