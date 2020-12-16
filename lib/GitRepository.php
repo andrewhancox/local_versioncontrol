@@ -105,6 +105,17 @@
 		 * @return string[]|NULL  NULL => no tags
 		 * @throws GitException
 		 */
+		public function getDiff($initial, $final, $args)
+		{
+			return $this->extractFromCommand("git diff $initial $final $args", 'trim');
+		}
+
+
+		/**
+		 * Returns list of tags in repo.
+		 * @return string[]|NULL  NULL => no tags
+		 * @throws GitException
+		 */
 		public function getTags()
 		{
 			return $this->extractFromCommand('git tag', 'trim');

@@ -70,6 +70,11 @@ class eventhandlers {
         $phar->extractTo($reporoot,null, true);
         unlink($tempfolder.'/'.$tempfilename . '.tar.gz');
 
+        $archive_index = $reporoot . '.ARCHIVE_INDEX';
+        if (!file_exists($archive_index)) {
+            unlink($archive_index); // delete file
+        }
+
         $repo->addAllChanges();
         $repo->commit($event->timecreated);
     }

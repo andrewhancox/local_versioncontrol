@@ -32,15 +32,7 @@ define(['Diff2Html'
          *
          * @return {formenhancements}
          */
-        init: function() {
-
-            const diffString = `diff --git a/sample.js b/sample.js
-index 0000001..0ddf2ba
---- a/sample.js
-+++ b/sample.js
-@@ -1 +1 @@
--console.log("Hello World!")
-+console.log("Hello from Diff2Html!")`;
+        init: function(diffString) {
 
             var diffHtml = Diff2Html.html(diffString, {
                 drawFileList: true,
