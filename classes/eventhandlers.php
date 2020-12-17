@@ -16,66 +16,53 @@
 
 namespace local_versioncontrol;
 
-use backup;
-use backup_controller;
+use core\event\base;
 use core\event\course_module_updated;
-use Cz\Git\GitRepository;
-use PharData;
+use core\event\question_base;
 
 class eventhandlers {
     /**
      * @param course_module_updated $event
      */
-    public static function course_module_updated(course_module_updated $event) {
-        global $CFG;
+    public static function recordchange(base $event) {
+        $repo = repo::get_record([
+                'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
+                'instanceid'   => $event->contextid
+        ]);
 
-        $now = time();
+        if (!$repo) {
+            return;
+        }
 
-        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
-        require_once($CFG->dirroot . '/local/versioncontrol/lib/IGit.php');
-        require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
+        if ($repo->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
+            $repo->commitchanges($event->userid, $event->timecreated);
+        } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
+            $repo->set('possiblechanges', true);
+            $repo->save();
+        }
+    }
 
-        $tempfilename = 'backup' . '_' . $now . '_' . $event->objectid;
+    public static function questionchange(question_base $event) {
+        global $DB;
 
-        $bc = new backup_controller(backup::TYPE_1ACTIVITY, $event->objectid, backup::FORMAT_MOODLE,
-                backup::INTERACTIVE_NO, backup::MODE_GENERAL, $event->userid);
-        $bc->get_plan()->get_setting('anonymize')->set_value(true);
-        $bc->get_plan()->get_setting('filename')->set_value($tempfilename);
-        $bc->execute_plan();
-        $results = $bc->get_results();
-        $file = $results['backup_destination'];
+        $questionid = $event->objectid;
 
-        $reporoot = $CFG->dataroot . '/local_versioncontrol/' . $event->objectid . '/';
-        @mkdir($reporoot, 0777, true);
+        $reporecords = $DB->get_records_sql('select repo.* from {context} ctx
+         inner join {course_modules} cm on cm.id = ctx.instanceid
+         inner join {quiz_slots} qs on qs.quizid = cm.instance
+         inner join {question} q on q.id = qs.questionid
+         inner join {local_versioncontrol_repo} repo on repo.instanceid = ctx.id and rep.instancetype = :instancetype
+         where q.id = :questionid', ['questionid' => $questionid, 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT]);
 
-        $tempfolder = make_temp_directory('local_versioncontrol' . '_' . $now . '_' . $event->objectid);
-        $file->copy_content_to($tempfolder.'/'.$tempfilename . '.tar.gz');
-        $file->delete();
+        foreach ($reporecords as $reporecord) {
+            $repo = new repo($reporecord->id);
 
-        $files = glob($reporoot . '*'); // get all file names
-        foreach($files as $file){ // iterate files
-            if(is_file($file)) {
-                unlink($file); // delete file
+            if ($repo->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
+                $repo->commitchanges($event->userid, $event->timecreated);
+            } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
+                $repo->set('possiblechanges', true);
+                $repo->save();
             }
         }
-
-        if (!file_exists($reporoot . ".git")) {
-            $repo = GitRepository::init($reporoot);
-        } else {
-            $repo = new GitRepository($reporoot);
-        }
-
-        $phar = new PharData($tempfolder.'/'.$tempfilename . '.tar.gz');
-        $phar->decompress(); // creates /path/to/my.tar
-        $phar->extractTo($reporoot,null, true);
-        unlink($tempfolder.'/'.$tempfilename . '.tar.gz');
-
-        $archive_index = $reporoot . '.ARCHIVE_INDEX';
-        if (!file_exists($archive_index)) {
-            unlink($archive_index); // delete file
-        }
-
-        $repo->addAllChanges();
-        $repo->commit($event->timecreated);
     }
 }

@@ -107,7 +107,7 @@
 		 */
 		public function getDiff($initial, $final, $args)
 		{
-			return $this->extractFromCommand("git diff $initial $final $args", 'trim');
+			return $this->extractFromCommand("git diff --minimal $initial $final $args", 'trim');
 		}
 
 

@@ -34,11 +34,7 @@ define(['Diff2Html'
          */
         init: function(diffString) {
 
-            var diffHtml = Diff2Html.html(diffString, {
-                drawFileList: true,
-                matching: 'lines',
-                outputFormat: 'side-by-side',
-            });
+            var diffHtml = Diff2Html.html(diffString);
 
             document.getElementById('myDiffElement').innerHTML = diffHtml;
         }

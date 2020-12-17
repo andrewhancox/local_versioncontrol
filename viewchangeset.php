@@ -33,9 +33,8 @@ require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
 
 
 $repo = new GitRepository("/Users/andrewhancox/MoodleData/oslmoodle/www/local_versioncontrol/171");
-$changeset =  $repo->getDiff('HEAD' ,'HEAD^', "':(exclude)moodle_backup.*' ':(exclude).ARCHIVE_INDEX'");
+$changeset =  $repo->getDiff('HEAD^' ,'HEAD', "':(exclude)moodle_backup.*' ':(exclude).ARCHIVE_INDEX' ':(exclude)*inforef.xml' ':(exclude)files.xml'");
 $changeset = implode("\n", $changeset);
-
 
 $PAGE->requires->js(new moodle_url('/local/versioncontrol/lib/diff2html.js'));
 $PAGE->requires->css(new moodle_url('https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css'));
