@@ -1,11 +1,9 @@
-Browse repos
-Nav
-Download at commit
+Hide bad buttons (first/last commit)
 Revert to commit
 Pop up on html within tag - images?
 Link files (where possible)
 
 
 
-exclude inforef and files - but link files - git show branch:file
+link files - git show branch:file
 need to get mimetype out of files.xml
