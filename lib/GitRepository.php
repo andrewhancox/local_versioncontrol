@@ -536,6 +536,13 @@
 				->end();
 		}
 
+		public function archive($commit) {
+            $this->begin()
+                    ->run('git archive --format=tar.gz ', $commit)
+                    ->end();
+            return implode("\n", $this->lastrunoutput);
+        }
+
 
 		/**
 		 * Changes remote repository URL
@@ -657,7 +664,7 @@
 			return $output;
 		}
 
-
+        private $lastrunoutput;
 		/**
 		 * Runs command.
 		 * @param  string|array
@@ -666,9 +673,11 @@
 		 */
 		protected function run($cmd/*, $options = NULL*/)
 		{
+            $this->lastrunoutput = false;
+
 			$args = func_get_args();
 			$cmd = self::processCommand($args);
-			exec($cmd . ' 2>&1', $output, $ret);
+			exec($cmd . ' 2>&1', $this->lastrunoutput, $ret);
 
 			if($ret !== 0)
 			{

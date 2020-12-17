@@ -65,23 +65,31 @@ class repo extends \core\persistent {
      */
     protected static function define_properties() {
         return array(
-                'instancetype' => array(
+                'instancetype'    => array(
                         'type'    => PARAM_INT,
                         'choices' => [self::INSTANCETYPE_COURSEMODULECONTEXT],
                 ),
-                'instanceid'   => array(
+                'instanceid'      => array(
                         'type' => PARAM_INT,
                 ),
-                'possiblechanges'   => array(
-                        'type' => PARAM_INT,
+                'possiblechanges' => array(
+                        'type'    => PARAM_INT,
                         'default' => 0
                 ),
-                'trackingtype' => array(
+                'trackingtype'    => array(
                         'type'    => PARAM_INT,
                         'choices' => [self::TRACKINGTYPE_NONE, self::TRACKINGTYPE_MANUAL, self::TRACKINGTYPE_AUTOMATIC],
                         'default' => self::TRACKINGTYPE_NONE
                 ),
         );
+    }
+
+    private function getrepodirectory() {
+        global $CFG;
+
+        $contextid = $this->get('instanceid');
+        $instancetype = $this->get('instancetype');
+        return "$CFG->dataroot/local_versioncontrol/$instancetype/$contextid/";
     }
 
     public function commitchanges($userid, $timecreated) {
@@ -94,13 +102,15 @@ class repo extends \core\persistent {
         $contextid = $this->get('instanceid');
         $instancetype = $this->get('instancetype');
 
-        if ($instancetype !== self::INSTANCETYPE_COURSEMODULECONTEXT) {
+        if ($instancetype != self::INSTANCETYPE_COURSEMODULECONTEXT) {
             print_error('Unsupported repo type');
         }
 
         $tempfilename = 'backup' . '_' . $timecreated . '_' . $contextid;
 
-        $bc = new backup_controller(backup::TYPE_1ACTIVITY, $contextid, backup::FORMAT_MOODLE,
+        $context = \context::instance_by_id($contextid);
+
+        $bc = new backup_controller(backup::TYPE_1ACTIVITY, $context->instanceid, backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid);
         $bc->get_plan()->get_setting('anonymize')->set_value(true);
         $bc->get_plan()->get_setting('filename')->set_value($tempfilename);
@@ -108,7 +118,7 @@ class repo extends \core\persistent {
         $results = $bc->get_results();
         $file = $results['backup_destination'];
 
-        $reporoot = "$CFG->dataroot/local_versioncontrol/$instancetype/$contextid/";
+        $reporoot = $this->getrepodirectory();
         @mkdir($reporoot, 0777, true);
 
         $tempfolder = make_temp_directory('local_versioncontrol' . '_' . $timecreated . '_' . $contextid);
@@ -151,6 +161,36 @@ class repo extends \core\persistent {
         $changeset->set('timecreated', $timecreated);
         $changeset->set('timemodified', $timecreated);
         $changeset->save();
+
+        return $changeset;
+    }
+
+    public function archive(commit $commit) {
+        global $CFG;
+
+        require_once($CFG->dirroot . '/local/versioncontrol/lib/IGit.php');
+        require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
+
+        $repo = new GitRepository($this->getrepodirectory());
+        return $repo->archive($commit->get('githash'));
+    }
+
+    public function getchangeset(commit $commit, $comparetohead) {
+        global $CFG;
+
+        require_once($CFG->dirroot . '/local/versioncontrol/lib/IGit.php');
+        require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
+
+        $githash = $commit->get('githash');
+        if ($comparetohead) {
+            $compareto = 'HEAD';
+        } else {
+            $compareto = $githash . '~';
+        }
+        $repo = new GitRepository($this->getrepodirectory());
+        $changeset = $repo->getDiff($compareto, $githash,
+                "':(exclude)moodle_backup.*' ':(exclude).ARCHIVE_INDEX' ':(exclude)*inforef.xml' ':(exclude)files.xml'");
+        $changeset = implode("\n", $changeset);
 
         return $changeset;
     }

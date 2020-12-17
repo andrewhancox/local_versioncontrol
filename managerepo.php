@@ -26,7 +26,7 @@ require_once(dirname(__FILE__) . '/../../config.php');
 $instanceid = required_param('instanceid', PARAM_INT);
 $instancetype = required_param('instancetype', PARAM_INT);
 
-if ($instancetype !== \local_versioncontrol\repo::INSTANCETYPE_COURSEMODULECONTEXT) {
+if ($instancetype != \local_versioncontrol\repo::INSTANCETYPE_COURSEMODULECONTEXT) {
     print_error('Unsupported instance type');
 }
 
@@ -35,9 +35,9 @@ $context = context::instance_by_id($instanceid);
 require_login();
 require_capability('local/versioncontrol:manage', $context);
 
-$url = new moodle_url('/local/fielddefaults/managerepo.php', ['instanceid' => $instanceid, 'instancetype' => $instancetype]);
+$url = new moodle_url('/local/versioncontrol/managerepo.php', ['instanceid' => $instanceid, 'instancetype' => $instancetype]);
 list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
-$title = get_string('managerepoforactivity', 'local_fielddefaults', $cm->get_formatted_name());
+$title = get_string('managerepoforactivity', 'local_versioncontrol', $cm->get_formatted_name());
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
@@ -46,7 +46,6 @@ $PAGE->set_cm($cm);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
-
 $persistent = \local_versioncontrol\repo::get_record(['instanceid' => $instanceid, 'instancetype' => $instancetype]);
 if (!$persistent) {
     $persistent = new \local_versioncontrol\repo();
@@ -54,10 +53,6 @@ if (!$persistent) {
     $persistent->set('instancetype', $instancetype);
 } else {
     $url->param('id', $persistent->get('id'));
-}
-
-if (isset($productid)) {
-    $persistent->set('productid', $productid);
 }
 
 $customdata = [
@@ -69,6 +64,17 @@ if ($form->handlepostback() || $form->is_cancelled()) {
     redirect(new moodle_url($cm->url));
 }
 
+if ($persistent->get('id')) {
+    $table = new \local_versioncontrol\commits_table(['repoid' => $persistent->get('id')],
+            optional_param('tsort', 'id', PARAM_ALPHA));
+    $table->define_baseurl($url);
+}
+
 echo $OUTPUT->header();
 $form->display();
+
+if ($table) {
+    $table->out(5000, true);
+}
+
 echo $OUTPUT->footer();

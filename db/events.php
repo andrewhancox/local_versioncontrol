@@ -6,6 +6,8 @@
  * Time: 14:16
  */
 
+$observers = [];
+
 $events = [
         '\core\event\course_module_updated',
         '\mod_book\event\chapter_created',
@@ -37,7 +39,6 @@ $events = [
         '\mod_quiz\event\edit_page_viewed'
 ];
 
-$observers = [];
 foreach ($events as $eventname) {
     $observers[] = [
             'eventname' => $eventname,
@@ -51,7 +52,6 @@ $questionevents = [
         '\core\event\question_created'
 ];
 
-$observers = [];
 foreach ($questionevents as $eventname) {
     $observers[] = [
             'eventname' => $eventname,
