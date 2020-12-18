@@ -33,22 +33,26 @@ $download = optional_param('download', false, PARAM_BOOL);
 $commit = new \local_versioncontrol\commit($commitid);
 $repo = new \local_versioncontrol\repo($commit->get('repoid'));
 
-if ($repo->get('instancetype') != \local_versioncontrol\repo::INSTANCETYPE_COURSEMODULECONTEXT) {
-    print_error('Unsupported instance type');
-}
-
 $context = context::instance_by_id($repo->get('instanceid'));
 
 require_login();
 require_capability('local/versioncontrol:manage', $context);
 $url = new moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commitid]);
-list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
-$title = get_string('viewcommit', 'local_versioncontrol', $cm->get_formatted_name());
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('admin');
-$PAGE->set_cm($cm);
+if ($context->contextlevel == CONTEXT_MODULE) {
+    list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
+    $title = get_string('viewcommittoactivity', 'local_versioncontrol', $cm->get_formatted_name());
+    $PAGE->set_cm($cm);
+    $redirect = new moodle_url($cm->url);
+} else if ($context->contextlevel == CONTEXT_COURSE) {
+    $course = get_course($context->instanceid);
+    $title = get_string('viewcommittocourse', 'local_versioncontrol', format_string($course->fullname));
+    $PAGE->set_course($course);
+    $redirect = new moodle_url("/course/view.php", ['id' => $course->id]);
+}
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 

@@ -45,6 +45,7 @@ class repo extends \core\persistent {
     const TABLE = 'local_versioncontrol_repo';
 
     const INSTANCETYPE_COURSEMODULECONTEXT = 10;
+    const INSTANCETYPE_COURSECONTEXT = 20;
 
     const TRACKINGTYPE_NONE = 10;
     const TRACKINGTYPE_MANUAL = 20;
@@ -67,13 +68,13 @@ class repo extends \core\persistent {
         return array(
                 'instancetype'    => array(
                         'type'    => PARAM_INT,
-                        'choices' => [self::INSTANCETYPE_COURSEMODULECONTEXT],
+                        'choices' => [self::INSTANCETYPE_COURSEMODULECONTEXT, self::INSTANCETYPE_COURSECONTEXT],
                 ),
                 'instanceid'      => array(
                         'type' => PARAM_INT,
                 ),
                 'possiblechanges' => array(
-                        'type'    => PARAM_INT,
+                        'type'    => PARAM_BOOL,
                         'default' => 0
                 ),
                 'trackingtype'    => array(
@@ -102,7 +103,11 @@ class repo extends \core\persistent {
         $contextid = $this->get('instanceid');
         $instancetype = $this->get('instancetype');
 
-        if ($instancetype != self::INSTANCETYPE_COURSEMODULECONTEXT) {
+        if ($instancetype == self::INSTANCETYPE_COURSEMODULECONTEXT) {
+            $backuptype = backup::TYPE_1ACTIVITY;
+        } else if ($instancetype == self::INSTANCETYPE_COURSECONTEXT) {
+            $backuptype = backup::TYPE_1COURSE;
+        } else {
             print_error('Unsupported repo type');
         }
 
@@ -110,10 +115,12 @@ class repo extends \core\persistent {
 
         $context = \context::instance_by_id($contextid);
 
-        $bc = new backup_controller(backup::TYPE_1ACTIVITY, $context->instanceid, backup::FORMAT_MOODLE,
+        $bc = new backup_controller($backuptype, $context->instanceid, backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid);
         $bc->get_plan()->get_setting('anonymize')->set_value(true);
         $bc->get_plan()->get_setting('filename')->set_value($tempfilename);
+        $bc->get_plan()->get_setting('users')->set_value(false);
+        $bc->get_plan()->get_setting('logs')->set_value(false);
         $bc->execute_plan();
         $results = $bc->get_results();
         $file = $results['backup_destination'];
@@ -143,9 +150,16 @@ class repo extends \core\persistent {
         $phar->extractTo($reporoot, null, true);
         unlink($tempfolder . '/' . $tempfilename . '.tar.gz');
 
-        $archive_index = $reporoot . '.ARCHIVE_INDEX';
-        if (!file_exists($archive_index)) {
-            unlink($archive_index); // delete file
+        $unwantedfiles = ['moodle_backup.log', '.ARCHIVE_INDEX'];
+        foreach ($unwantedfiles as $unwantedfile) {
+            $archive_index = $reporoot . $unwantedfile;
+            if (file_exists($archive_index)) {
+                unlink($archive_index); // delete file
+            }
+        }
+
+        if ($repo->filestatus('moodle_backup.xml') == 'M') {
+            $repo->checkout('moodle_backup.xml');
         }
 
         if (!$repo->hasChanges()) {
@@ -161,6 +175,9 @@ class repo extends \core\persistent {
         $changeset->set('timecreated', $timecreated);
         $changeset->set('timemodified', $timecreated);
         $changeset->save();
+
+        $this->set('possiblechanges', false);
+        $this->update();
 
         return $changeset;
     }
@@ -188,8 +205,8 @@ class repo extends \core\persistent {
             $compareto = $githash . '~';
         }
         $repo = new GitRepository($this->getrepodirectory());
-        $changeset = $repo->getDiff($compareto, $githash,
-                "':(exclude)moodle_backup.*' ':(exclude).ARCHIVE_INDEX' ':(exclude)*inforef.xml' ':(exclude)files.xml'");
+        //"':(exclude)moodle_backup.*' ':(exclude).ARCHIVE_INDEX' ':(exclude)*inforef.xml' ':(exclude)files.xml'"
+        $changeset = $repo->getDiff($compareto, $githash,'');
         $changeset = implode("\n", $changeset);
 
         return $changeset;

@@ -25,20 +25,46 @@ class eventhandlers {
      * @param course_module_updated $event
      */
     public static function recordchange(base $event) {
-        $repo = repo::get_record([
+        global $USER, $SESSION;
+
+        $cmrepo = repo::get_record([
                 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
                 'instanceid'   => $event->contextid
         ]);
 
-        if (!$repo) {
-            return;
+        $coursecontext = \context_course::instance($event->courseid);
+        $courserepo = repo::get_record([
+                'instancetype' => repo::INSTANCETYPE_COURSECONTEXT,
+                'instanceid'   => $coursecontext->id
+        ]);
+
+        $repos = [];
+        if ($cmrepo) {
+            $repos[] = $cmrepo;
+        }
+        if ($courserepo) {
+            $repos[] = $courserepo;
         }
 
-        if ($repo->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
-            $repo->commitchanges($event->userid, $event->timecreated);
-        } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
-            $repo->set('possiblechanges', true);
-            $repo->save();
+        foreach ($repos as $repo) {
+            if ($repo->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
+                $repo->commitchanges($event->userid, $event->timecreated);
+            } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
+                $repo->set('possiblechanges', true);
+                $repo->save();
+            }
+            if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
+                if (isset($SESSION) && $USER->id == $event->userid) {
+                    if (!isset($SESSION->local_versioncontrol_warnchanges)) {
+                        $SESSION->local_versioncontrol_warnchanges = [];
+                    }
+                    if (!isset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')])) {
+                        $SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')] = [];
+                    }
+                    $SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')] =
+                            $repo->get('instanceid');
+                }
+            }
         }
     }
 

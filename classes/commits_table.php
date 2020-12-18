@@ -60,7 +60,7 @@ class commits_table extends \table_sql {
             return '';
         }
 
-        return userdate($commit->timecreated, get_string('strftimedate', 'langconfig'));
+        return userdate_htmltime($commit->timecreated);
     }
 
     public function col_actions($commit) {

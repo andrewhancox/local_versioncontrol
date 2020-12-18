@@ -39,17 +39,20 @@ class repoform extends persistent {
             return false;
         }
 
-        if (empty($data->id)) {
+        $persistent = $this->get_persistent();
+        if (empty($persistent->get('id'))) {
             $persistent = new repo();
             $persistent->from_record($datacleaned);
             $persistent->create();
-
-            if ($persistent->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
-                $persistent->commitchanges($USER->id, time());
-            }
         } else {
-            $persistent = $this->get_persistent();
             $persistent->from_record($datacleaned);
+            $persistent->update();
+        }
+
+        if ($persistent->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
+            $persistent->commitchanges($USER->id, time());
+        } else if ($persistent->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
+            $persistent->set('possiblechanges', true);
             $persistent->update();
         }
 

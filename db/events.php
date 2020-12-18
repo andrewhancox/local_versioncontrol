@@ -36,7 +36,13 @@ $events = [
         '\mod_wiki\event\page_updated',
         '\mod_wiki\event\page_version_deleted',
         '\mod_wiki\event\page_version_restored',
-        '\mod_quiz\event\edit_page_viewed'
+        '\mod_quiz\event\edit_page_viewed',
+        '\core\event\course_module_deleted',
+        '\core\event\course_module_created',
+        '\core\event\course_section_deleted',
+        '\core\event\course_section_updated',
+        '\core\event\course_section_created',
+        '\core\event\course_updated',
 ];
 
 foreach ($events as $eventname) {

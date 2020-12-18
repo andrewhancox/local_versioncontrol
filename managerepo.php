@@ -22,13 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_versioncontrol\repo;
+use local_versioncontrol\repoform;
+
 require_once(dirname(__FILE__) . '/../../config.php');
 $instanceid = required_param('instanceid', PARAM_INT);
 $instancetype = required_param('instancetype', PARAM_INT);
-
-if ($instancetype != \local_versioncontrol\repo::INSTANCETYPE_COURSEMODULECONTEXT) {
-    print_error('Unsupported instance type');
-}
 
 $context = context::instance_by_id($instanceid);
 
@@ -36,44 +35,66 @@ require_login();
 require_capability('local/versioncontrol:manage', $context);
 
 $url = new moodle_url('/local/versioncontrol/managerepo.php', ['instanceid' => $instanceid, 'instancetype' => $instancetype]);
-list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
-$title = get_string('managerepoforactivity', 'local_versioncontrol', $cm->get_formatted_name());
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('admin');
-$PAGE->set_cm($cm);
+
+if ($context->contextlevel == CONTEXT_MODULE) {
+    list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
+    $title = get_string('managerepoforactivity', 'local_versioncontrol', $cm->get_formatted_name());
+    $PAGE->set_cm($cm);
+    $redirect = new moodle_url($cm->url);
+} else if ($context->contextlevel == CONTEXT_COURSE) {
+    $course = get_course($context->instanceid);
+    $title = get_string('managerepoforcourse', 'local_versioncontrol', format_string($course->fullname));
+    $PAGE->set_course($course);
+    $redirect = new moodle_url("/course/view.php", ['id' => $course->id]);
+}
+
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
-$persistent = \local_versioncontrol\repo::get_record(['instanceid' => $instanceid, 'instancetype' => $instancetype]);
-if (!$persistent) {
-    $persistent = new \local_versioncontrol\repo();
-    $persistent->set('instanceid', $instanceid);
-    $persistent->set('instancetype', $instancetype);
+$repo = repo::get_record(['instanceid' => $instanceid, 'instancetype' => $instancetype]);
+if (!$repo) {
+    $repo = new \local_versioncontrol\repo();
+    $repo->set('instanceid', $instanceid);
+    $repo->set('instancetype', $instancetype);
 } else {
-    $url->param('id', $persistent->get('id'));
+    $url->param('id', $repo->get('id'));
 }
 
 $customdata = [
-        'persistent' => $persistent
+        'persistent' => $repo
 ];
-$form = new \local_versioncontrol\repoform($url->out(false), $customdata);
+$form = new repoform($url->out(false), $customdata);
 
 if ($form->handlepostback() || $form->is_cancelled()) {
-    redirect(new moodle_url($cm->url));
+    redirect($redirect);
 }
 
-if ($persistent->get('id')) {
-    $table = new \local_versioncontrol\commits_table(['repoid' => $persistent->get('id')],
+if ($repo->get('id')) {
+    $table = new \local_versioncontrol\commits_table(['repoid' => $repo->get('id')],
             optional_param('tsort', 'id', PARAM_ALPHA));
     $table->define_baseurl($url);
 }
 
 echo $OUTPUT->header();
+
+if ($repo && $repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
+    if ($repo->get("possiblechanges")) {
+        $label = get_string('makecommitdetectedchanges', 'local_versioncontrol');
+    } else {
+        $label = get_string('makecommitnodetectedchanges', 'local_versioncontrol');
+    }
+    $commitbutton = new single_button(new moodle_url('/local/versioncontrol/makecommit.php',
+            ['repo' => $repo->get('id')]), $label, 'post');
+    echo $OUTPUT->render($commitbutton);
+}
+
 $form->display();
 
-if ($table) {
+if (isset($table)) {
     $table->out(5000, true);
 }
 

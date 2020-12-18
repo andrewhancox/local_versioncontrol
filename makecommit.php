@@ -23,10 +23,6 @@ $repo = new \local_versioncontrol\repo($repoid);
 
 $instancetype = $repo->get('instancetype');
 
-if ($instancetype !== \local_versioncontrol\repo::INSTANCETYPE_COURSEMODULECONTEXT) {
-    print_error('Unsupported repo type');
-}
-
 $context = context::instance_by_id($repo->get('instanceid'));
 
 require_login();
@@ -37,12 +33,23 @@ list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
-$PAGE->set_cm($cm);
 
 $changeset = $repo->commitchanges($USER->id, time());
 
+if (isset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')])) {
+    unset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')]);
+}
+
+if ($context->contextlevel == CONTEXT_MODULE) {
+    list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
+    $redirect = new moodle_url($cm->url);
+} else if ($context->contextlevel == CONTEXT_COURSE) {
+    $course = get_course($context->instanceid);
+    $redirect = new moodle_url("/course/view.php", ['id' => $course->id]);
+}
+
 if ($changeset === false) {
-    redirect(new moodle_url($cm->url), get_string('nochanges', 'local_versioncontrol'), 0, notification::NOTIFY_WARNING);
+    redirect($redirect, get_string('nochanges', 'local_versioncontrol'), 0, notification::NOTIFY_WARNING);
 } else {
-    redirect(new moodle_url($cm->url), get_string('commitsuccess', 'local_versioncontrol'), 0, notification::NOTIFY_SUCCESS);
+    redirect($redirect, get_string('commitsuccess', 'local_versioncontrol'), 0, notification::NOTIFY_SUCCESS);
 }
