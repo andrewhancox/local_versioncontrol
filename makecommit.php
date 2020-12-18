@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 use core\output\notification;
+use local_versioncontrol\commitform;
 
 require_once(dirname(__FILE__) . '/../../config.php');
 $repoid = required_param('repo', PARAM_INT);
@@ -28,28 +29,45 @@ $context = context::instance_by_id($repo->get('instanceid'));
 require_login();
 require_capability('local/versioncontrol:manage', $context);
 
-$url = new moodle_url('/local/fielddefaults/makecommit.php', ['repo' => $repoid]);
+$url = new moodle_url('/local/versioncontrol/makecommit.php', ['repo' => $repoid]);
 list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 
-$changeset = $repo->commitchanges($USER->id, time());
-
-if (isset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')])) {
-    unset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')]);
-}
-
 if ($context->contextlevel == CONTEXT_MODULE) {
     list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
     $redirect = new moodle_url($cm->url);
+    $title = get_string('commitforactivity', 'local_versioncontrol', $cm->get_formatted_name());
+    $PAGE->set_cm($cm);
 } else if ($context->contextlevel == CONTEXT_COURSE) {
     $course = get_course($context->instanceid);
     $redirect = new moodle_url("/course/view.php", ['id' => $course->id]);
+    $title = get_string('commitforcourse', 'local_versioncontrol', format_string($course->fullname));
+    $PAGE->set_course($course);
 }
 
-if ($changeset === false) {
-    redirect($redirect, get_string('nochanges', 'local_versioncontrol'), 0, notification::NOTIFY_WARNING);
-} else {
-    redirect($redirect, get_string('commitsuccess', 'local_versioncontrol'), 0, notification::NOTIFY_SUCCESS);
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
+
+$form = new commitform($url->out(false));
+
+if ($form->is_cancelled()) {
+    redirect($redirect);
+} else if ($data = $form->get_data()) {
+    $changeset = $repo->commitchanges($USER->id, time(), $data->message);
+
+    if (isset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')])) {
+        unset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')]);
+    }
+
+    if ($changeset === false) {
+        redirect($redirect, get_string('nochanges', 'local_versioncontrol'), 0, notification::NOTIFY_WARNING);
+    } else {
+        redirect($redirect, get_string('commitsuccess', 'local_versioncontrol'), 0, notification::NOTIFY_SUCCESS);
+    }
 }
+
+echo $OUTPUT->header();
+$form->display();
+echo $OUTPUT->footer();

@@ -7,6 +7,7 @@
         <TABLE NAME="local_versioncontrol_commit" COMMENT="Default comment for the table, please edit me">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="message" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="githash" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="repoid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>

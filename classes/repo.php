@@ -93,8 +93,12 @@ class repo extends \core\persistent {
         return "$CFG->dataroot/local_versioncontrol/$instancetype/$contextid/";
     }
 
-    public function commitchanges($userid, $timecreated) {
+    public function commitchanges($userid, $timecreated, $message = null) {
         global $CFG;
+
+        if (!isset($message)) {
+            $message = $timecreated;
+        }
 
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
         require_once($CFG->dirroot . '/local/versioncontrol/lib/IGit.php');
@@ -166,10 +170,11 @@ class repo extends \core\persistent {
             return false;
         }
 
-        $githash = $repo->addAllChanges()->commit($timecreated)->getLastCommitId();
+        $githash = $repo->addAllChanges()->commit($message)->getLastCommitId();
 
         $changeset = new commit();
         $changeset->set('githash', $githash);
+        $changeset->set('message', $message);
         $changeset->set('repoid', $this->get('id'));
         $changeset->set('usermodified', $userid);
         $changeset->set('timecreated', $timecreated);
@@ -205,7 +210,6 @@ class repo extends \core\persistent {
             $compareto = $githash . '~';
         }
         $repo = new GitRepository($this->getrepodirectory());
-        //"':(exclude)moodle_backup.*' ':(exclude).ARCHIVE_INDEX' ':(exclude)*inforef.xml' ':(exclude)files.xml'"
         $changeset = $repo->getDiff($compareto, $githash,'');
         $changeset = implode("\n", $changeset);
 

@@ -34,9 +34,10 @@ class commits_table extends \table_sql {
 
         $this->filterparams = $filterparams;
 
-        $this->define_columns(['time', 'fullname', 'actions']);
+        $this->define_columns(['time', 'message', 'fullname', 'actions']);
         $this->define_headers([
                 get_string('time', 'local_versioncontrol'),
+                get_string('message', 'local_versioncontrol'),
                 'unused',
                 ''
         ]);
@@ -48,7 +49,7 @@ class commits_table extends \table_sql {
         $this->useridfield = 'usermodified';
 
         $usernamesql = get_all_user_name_fields(true, 'u');
-        $this->set_sql('c.id, c.timecreated, c.usermodified, ' . $usernamesql,
+        $this->set_sql('c.id, c.timecreated, c.usermodified, c.message, ' . $usernamesql,
                 '{local_versioncontrol_commit} c
                 inner join {user} u on u.id = c.usermodified',
                 'repoid = :repoid',

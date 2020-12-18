@@ -28,7 +28,6 @@ require_once(dirname(__FILE__).'/../../config.php');
 
 $commitid = required_param('commitid', PARAM_INT);
 $comparetohead = optional_param('comparetohead', false, PARAM_BOOL);
-$download = optional_param('download', false, PARAM_BOOL);
 
 $commit = new \local_versioncontrol\commit($commitid);
 $repo = new \local_versioncontrol\repo($commit->get('repoid'));
@@ -56,7 +55,7 @@ if ($context->contextlevel == CONTEXT_MODULE) {
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
-if ($download) {
+if (optional_param('download', false, PARAM_BOOL)) {
     header('Content-Disposition: attachment; filename="' . $cm->id . '_' . $commit->get('githash') . '.mbz"');
     echo $repo->archive($commit);
     die();

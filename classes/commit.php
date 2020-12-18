@@ -51,6 +51,9 @@ class commit extends \core\persistent {
      */
     protected static function define_properties() {
         return array(
+                'message'   => array(
+                        'type' => PARAM_TEXT
+                ),
                 'githash'   => array(
                         'type' => PARAM_TEXT
                 ),

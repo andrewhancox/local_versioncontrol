@@ -76,7 +76,6 @@ function local_versioncontrol_coursemodule_edit_post_actions($data, $course) {
 }
 
 function local_versioncontrol_extend_settings_navigation(settings_navigation $nav, context $context) {
-
     if (!has_capability('local/versioncontrol:manage', $context)) {
         return;
     }
@@ -84,11 +83,11 @@ function local_versioncontrol_extend_settings_navigation(settings_navigation $na
     if ($context->contextlevel == CONTEXT_MODULE) {
         $navigation_node = $nav->get('modulesettings');
         $instancetype = repo::INSTANCETYPE_COURSEMODULECONTEXT;
-    }
-
-    if ($context->contextlevel == CONTEXT_COURSE) {
+    } else if ($context->contextlevel == CONTEXT_COURSE) {
         $navigation_node = $nav->get('courseadmin');
         $instancetype = repo::INSTANCETYPE_COURSECONTEXT;
+    } else {
+        return;
     }
 
     if ($navigation_node) {
