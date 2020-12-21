@@ -203,14 +203,25 @@ class repo extends \core\persistent {
         require_once($CFG->dirroot . '/local/versioncontrol/lib/IGit.php');
         require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
 
-        $githash = $commit->get('githash');
         if ($comparetohead) {
             $compareto = 'HEAD';
         } else {
-            $compareto = $githash . '~';
+            $previouscommitsinmoodle = commit::get_records_select('repoid = :repoid and id < :id', [
+                    'repoid' => $commit->get('repoid'),
+                    'id'     => $commit->get('id')
+            ], 'id desc');
+            if (!$previouscommitsinmoodle) {
+                $compareto = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'; // Empty sha (prior to first commit)
+            } else {
+                $previouscommitinmoodle = reset($previouscommitsinmoodle);
+                $compareto = $previouscommitinmoodle->get('githash');
+            }
         }
+
+        $githash = $commit->get('githash');
+
         $repo = new GitRepository($this->getrepodirectory());
-        $changeset = $repo->getDiff($compareto, $githash,'');
+        $changeset = $repo->getDiff($compareto, $githash, '');
         $changeset = implode("\n", $changeset);
 
         return $changeset;

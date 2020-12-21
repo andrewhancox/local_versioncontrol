@@ -68,18 +68,19 @@ class commits_table extends \table_sql {
         global $OUTPUT;
 
         $out = '';
+        $icon = $OUTPUT->pix_icon('t/download', get_string('download', 'local_versioncontrol'));
+        $url = new \moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id, 'download' => true]);
+        $out .= $OUTPUT->action_link($url, $icon);
 
         $icon = $OUTPUT->pix_icon('t/viewdetails', get_string('viewdetails', 'local_versioncontrol'));
         $url = new \moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id]);
         $out .= $OUTPUT->action_link($url, $icon);
 
-        $icon = $OUTPUT->pix_icon('t/copy', get_string('comparetohead', 'local_versioncontrol'));
-        $url = new \moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id, 'comparetohead' => true]);
-        $out .= $OUTPUT->action_link($url, $icon);
-
-        $icon = $OUTPUT->pix_icon('t/download', get_string('download', 'local_versioncontrol'));
-        $url = new \moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id, 'download' => true]);
-        $out .= $OUTPUT->action_link($url, $icon);
+        if ($this->currentrow < ($this->totalrows - 1)) {
+            $icon = $OUTPUT->pix_icon('t/copy', get_string('comparetohead', 'local_versioncontrol'));
+            $url = new \moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id, 'comparetohead' => true]);
+            $out .= $OUTPUT->action_link($url, $icon);
+        }
 
         return $out;
     }

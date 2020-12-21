@@ -23,8 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-require_once(dirname(__FILE__).'/../../config.php');
+require_once(dirname(__FILE__) . '/../../config.php');
 
 $commitid = required_param('commitid', PARAM_INT);
 $comparetohead = optional_param('comparetohead', false, PARAM_BOOL);
@@ -64,7 +63,8 @@ if (optional_param('download', false, PARAM_BOOL)) {
 $PAGE->requires->js(new moodle_url('/local/versioncontrol/lib/diff2html.js'));
 $PAGE->requires->css(new moodle_url('https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css'));
 
-$PAGE->requires->js_call_amd('local_versioncontrol/diffrenderer', 'init', ['changeset' => $repo->getchangeset($commit, $comparetohead)]);
+$PAGE->requires->js_call_amd('local_versioncontrol/diffrenderer', 'init',
+        ['changeset' => $repo->getchangeset($commit, $comparetohead)]);
 
 echo $OUTPUT->header();
 echo html_writer::div('', 'myDiffElement', ['id' => 'myDiffElement']);
