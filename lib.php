@@ -31,7 +31,9 @@ function local_versioncontrol_coursemodule_standard_elements($formwrapper, $mfor
             repo::gettrackingtypes(),
             ['required' => 'required']);
     if ($repo) {
-        $formwrapper->set_data(['local_versioncontrol_trackingtype' => $repo->get('trackingtype')]);
+        $mform->setDefault('local_versioncontrol_trackingtype', $repo->get('trackingtype'));
+    } else {
+        $mform->setDefault('local_versioncontrol_trackingtype', repo::TRACKINGTYPE_NONE);
     }
 }
 
