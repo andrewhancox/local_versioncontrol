@@ -21,6 +21,8 @@ use core\event\course_module_updated;
 use core\event\question_base;
 
 class eventhandlers {
+    static $repodebouncer = [];
+
     /**
      * @param course_module_updated $event
      */
@@ -47,6 +49,10 @@ class eventhandlers {
         }
 
         foreach ($repos as $repo) {
+            if (isset(self::$repodebouncer[$repo->get('id')])) {
+                continue;
+            }
+
             if ($repo->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
                 $repo->commitchanges($event->userid, $event->timecreated);
             } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
@@ -65,6 +71,8 @@ class eventhandlers {
                             $repo->get('instanceid');
                 }
             }
+
+            self::$repodebouncer[$repo->get('id')] = $repo->get('id');
         }
     }
 
