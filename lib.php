@@ -11,19 +11,13 @@ use local_versioncontrol\repo;
 function local_versioncontrol_coursemodule_standard_elements($formwrapper, $mform) {
     global $PAGE;
 
-    if ($cm = $formwrapper->get_coursemodule()) {
-        $cmid = $cm->id;
-    }
-
-    $context = context_module::instance($cmid);
-
-    if (!has_capability('local/versioncontrol:manage', $context)) {
+    if (!has_capability('local/versioncontrol:manage', $PAGE->context)) {
         return;
     }
 
     $repo = repo::get_record([
             'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
-            'instanceid'   => $context->id
+            'instanceid'   => $PAGE->context->id
     ]);
 
     $mform->addElement('header', 'versioncontrol', get_string('pluginname', 'local_versioncontrol'));
