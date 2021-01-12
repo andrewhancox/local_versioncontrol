@@ -109,44 +109,55 @@ function local_versioncontrol_extend_settings_navigation(settings_navigation $na
 }
 
 function local_versioncontrol_before_standard_top_of_body_html() {
-    global $PAGE, $SESSION;
+    local_versioncontrol_showwarnings();
+}
+function local_versioncontrol_showwarnings() {
+    global $PAGE;
 
     $context = $PAGE->context;
-    if ($context->contextlevel == CONTEXT_MODULE) {
-        if (isset($SESSION->local_versioncontrol_warnchanges[repo::INSTANCETYPE_COURSEMODULECONTEXT][$PAGE->context->id])) {
 
-            $repo = repo::get_record([
-                    'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
-                    'instanceid'   => $PAGE->context->id
-            ]);
-            \core\notification::warning(
-                    get_string('changesdetectedactivity', 'local_versioncontrol')
-                    .
-                    ": "
-                    .
-                    html_writer::link(
-                            new moodle_url('/local/versioncontrol/makecommit.php',
-                                    ['repo' => $repo->get('id')]),
-                            get_string('makecommit', 'local_versioncontrol')
-                    )
-            );
-        }
+    if (!has_capability('local/versioncontrol:manage', $context)) {
+        return;
     }
 
-    $coursecontext = \context_course::instance($PAGE->course->id);
-    $course = $PAGE->course;
-    if (
-            !empty($course)
-            &&
-            isset($SESSION->local_versioncontrol_warnchanges[repo::INSTANCETYPE_COURSECONTEXT][$coursecontext->id])
-    ) {
+    if ($PAGE->pagetype == 'local-versioncontrol-makecommit') {
+        return;
+    }
 
-        $repo = repo::get_record([
-                'instancetype' => repo::INSTANCETYPE_COURSECONTEXT,
-                'instanceid'   => $coursecontext->id
+    if ($context->contextlevel == CONTEXT_MODULE) {
+        $cmrepo = repo::get_record([
+                'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
+                'instanceid'   => $context->id,
+                'possiblechanges' => true
         ]);
+    }
+
+    $coursecontext = $PAGE->context->get_course_context();
+    if ($coursecontext) {
+        $courserepo = repo::get_record([
+                'instancetype' => repo::INSTANCETYPE_COURSECONTEXT,
+                'instanceid'   => $coursecontext->id,
+                'possiblechanges' => true
+        ]);
+    }
+
+    $repos = [];
+    if ($cmrepo) {
+        $repos[] = $cmrepo;
+    }
+    if ($courserepo) {
+        $repos[] = $courserepo;
+    }
+
+    foreach ($repos as $repo) {
+        if ($repo->get('instancetype') == repo::INSTANCETYPE_COURSECONTEXT) {
+            $str = 'changesdetectedcourse';
+        } else if ($repo->get('instancetype') == repo::INSTANCETYPE_COURSEMODULECONTEXT) {
+            $str = 'changesdetectedactivity';
+        }
+
         \core\notification::warning(
-                get_string('changesdetectedcourse', 'local_versioncontrol')
+                get_string($str, 'local_versioncontrol')
                 .
                 ": "
                 .

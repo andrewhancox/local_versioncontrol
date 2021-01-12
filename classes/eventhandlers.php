@@ -27,8 +27,6 @@ class eventhandlers {
      * @param course_module_updated $event
      */
     public static function recordchange(base $event) {
-        global $USER, $SESSION;
-
         $cmrepo = repo::get_record([
                 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
                 'instanceid'   => $event->contextid
@@ -59,21 +57,11 @@ class eventhandlers {
                 $repo->set('possiblechanges', true);
                 $repo->save();
             }
-            if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
-                if (isset($SESSION) && $USER->id == $event->userid) {
-                    if (!isset($SESSION->local_versioncontrol_warnchanges)) {
-                        $SESSION->local_versioncontrol_warnchanges = [];
-                    }
-                    if (!isset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')])) {
-                        $SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')] = [];
-                    }
-                    $SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')] =
-                            $repo->get('instanceid');
-                }
-            }
 
             self::$repodebouncer[$repo->get('id')] = $repo->get('id');
         }
+
+        local_versioncontrol_showwarnings();
     }
 
     public static function questionchange(question_base $event) {
