@@ -27,6 +27,10 @@ class eventhandlers {
      * @param course_module_updated $event
      */
     public static function recordchange(base $event) {
+        global $CFG;
+
+        require_once("$CFG->dirroot/local/versioncontrol/lib.php");
+
         $cmrepo = repo::get_record([
                 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
                 'instanceid'   => $event->contextid

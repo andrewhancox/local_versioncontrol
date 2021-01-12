@@ -111,8 +111,9 @@ function local_versioncontrol_extend_settings_navigation(settings_navigation $na
 function local_versioncontrol_before_standard_top_of_body_html() {
     local_versioncontrol_showwarnings();
 }
+
 function local_versioncontrol_showwarnings() {
-    global $PAGE;
+    global $PAGE, $SESSION;
 
     $context = $PAGE->context;
 
@@ -124,6 +125,15 @@ function local_versioncontrol_showwarnings() {
         return;
     }
 
+    // Have we already done notifications (on this page load or a previous one).
+    if (isset($SESSION->notifications)) {
+        foreach ($SESSION->notifications as $notification) {
+            if (strpos($notification->message, 'makecommit.php') !== false) {
+                return;
+            }
+        }
+    }
+
     if ($context->contextlevel == CONTEXT_MODULE) {
         $cmrepo = repo::get_record([
                 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
@@ -132,14 +142,12 @@ function local_versioncontrol_showwarnings() {
         ]);
     }
 
-    $coursecontext = $PAGE->context->get_course_context();
-    if ($coursecontext) {
-        $courserepo = repo::get_record([
-                'instancetype' => repo::INSTANCETYPE_COURSECONTEXT,
-                'instanceid'   => $coursecontext->id,
-                'possiblechanges' => true
-        ]);
-    }
+    $coursecontext = context_course::instance($PAGE->course->id);
+    $courserepo = repo::get_record([
+            'instancetype' => repo::INSTANCETYPE_COURSECONTEXT,
+            'instanceid'   => $coursecontext->id,
+            'possiblechanges' => true
+    ]);
 
     $repos = [];
     if (!empty($cmrepo)) {
