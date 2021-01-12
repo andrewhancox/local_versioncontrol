@@ -115,6 +115,13 @@ function local_versioncontrol_before_standard_top_of_body_html() {
 function local_versioncontrol_showwarnings() {
     global $PAGE, $SESSION;
 
+    static $debounced;
+
+    if ($debounced == true) {
+        return;
+    }
+    $debounced = true;
+
     $context = $PAGE->context;
 
     if (!has_capability('local/versioncontrol:manage', $context)) {

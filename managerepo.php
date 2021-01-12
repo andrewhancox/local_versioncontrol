@@ -81,17 +81,6 @@ if ($repo->get('id')) {
 
 echo $OUTPUT->header();
 
-if ($repo && $repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
-    if ($repo->get("possiblechanges")) {
-        $label = get_string('makecommitdetectedchanges', 'local_versioncontrol');
-    } else {
-        $label = get_string('makecommitnodetectedchanges', 'local_versioncontrol');
-    }
-    $commitbutton = new single_button(new moodle_url('/local/versioncontrol/makecommit.php',
-            ['repo' => $repo->get('id')]), $label, 'post');
-    echo $OUTPUT->render($commitbutton);
-}
-
 $form->display();
 
 if (isset($table)) {

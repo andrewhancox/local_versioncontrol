@@ -65,5 +65,11 @@ if ($form->is_cancelled()) {
 }
 
 echo $OUTPUT->header();
+
+echo $OUTPUT->box_start();
+
 $form->display();
+
+echo $OUTPUT->box_end();
+
 echo $OUTPUT->footer();

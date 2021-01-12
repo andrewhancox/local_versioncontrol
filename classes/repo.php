@@ -115,7 +115,7 @@ class repo extends \core\persistent {
             print_error('Unsupported repo type');
         }
 
-        $tempfilename = 'backup' . '_' . $timecreated . '_' . $contextid;
+        $tempfilename = 'backup' . '_' . $timecreated . '_' . $contextid . '_' . random_string(5);
 
         $context = \context::instance_by_id($contextid);
 
