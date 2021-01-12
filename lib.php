@@ -142,10 +142,10 @@ function local_versioncontrol_showwarnings() {
     }
 
     $repos = [];
-    if ($cmrepo) {
+    if (!empty($cmrepo)) {
         $repos[] = $cmrepo;
     }
-    if ($courserepo) {
+    if (!empty($courserepo)) {
         $repos[] = $courserepo;
     }
 
