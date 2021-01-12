@@ -170,7 +170,10 @@ class repo extends \core\persistent {
             return false;
         }
 
-        $githash = $repo->addAllChanges()->commit($message)->getLastCommitId();
+        $user = \core_user::get_user($userid);
+        $fullname = fullname($user);
+        $author = "$fullname <$user->email>";
+        $githash = $repo->addAllChanges()->commit($message, ['--author' => $author])->getLastCommitId();
 
         $changeset = new commit();
         $changeset->set('githash', $githash);

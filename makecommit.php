@@ -57,10 +57,6 @@ if ($form->is_cancelled()) {
 } else if ($data = $form->get_data()) {
     $changeset = $repo->commitchanges($USER->id, time(), $data->message);
 
-    if (isset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')])) {
-        unset($SESSION->local_versioncontrol_warnchanges[$repo->get('instancetype')][$repo->get('instanceid')]);
-    }
-
     if ($changeset === false) {
         redirect($redirect, get_string('nochanges', 'local_versioncontrol'), 0, notification::NOTIFY_WARNING);
     } else {
