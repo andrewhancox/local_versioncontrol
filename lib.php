@@ -48,11 +48,19 @@ function local_versioncontrol_coursemodule_standard_elements($formwrapper, $mfor
     $mform->addElement('select', 'local_versioncontrol_trackingtype', get_string('trackingtype', 'local_versioncontrol'),
             repo::gettrackingtypes(),
             ['required' => 'required']);
+
+    $defaultforactivity = get_config('local_versioncontrol', 'autoenableforactivitytype_' . $formwrapper->get_current()->modulename);
     if ($repo) {
-        $mform->setDefault('local_versioncontrol_trackingtype', $repo->get('trackingtype'));
+        $default = $repo->get('trackingtype');
+    } else if (!empty($formwrapper->get_coursemodule)) {
+        $default = repo::TRACKINGTYPE_NONE;
+    } else if (!empty($defaultforactivity)) {
+        $default = $defaultforactivity;
     } else {
-        $mform->setDefault('local_versioncontrol_trackingtype', repo::TRACKINGTYPE_NONE);
+        $default = repo::TRACKINGTYPE_NONE;
     }
+
+    $mform->setDefault('local_versioncontrol_trackingtype', $default);
 }
 
 /**
@@ -167,16 +175,16 @@ function local_versioncontrol_showwarnings() {
 
     if ($context->contextlevel == CONTEXT_MODULE) {
         $cmrepo = repo::get_record([
-                'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
-                'instanceid'   => $context->id,
+                'instancetype'    => repo::INSTANCETYPE_COURSEMODULECONTEXT,
+                'instanceid'      => $context->id,
                 'possiblechanges' => true
         ]);
     }
 
     $coursecontext = context_course::instance($PAGE->course->id);
     $courserepo = repo::get_record([
-            'instancetype' => repo::INSTANCETYPE_COURSECONTEXT,
-            'instanceid'   => $coursecontext->id,
+            'instancetype'    => repo::INSTANCETYPE_COURSECONTEXT,
+            'instanceid'      => $coursecontext->id,
             'possiblechanges' => true
     ]);
 

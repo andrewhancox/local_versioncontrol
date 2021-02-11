@@ -23,6 +23,7 @@
  * @copyright 2021, Andrew Hancox
  */
 
+$string['autoenableforactivitytype'] = 'Default version control setting for new activities';
 $string['pluginname'] = 'Version control';
 $string['managerepo'] = 'Version control';
 $string['makecommit'] = 'Commit to version control';
@@ -33,6 +34,7 @@ $string['trackingtype_10'] = 'None';
 $string['trackingtype_20'] = 'Manual';
 $string['trackingtype_30'] = 'Automatic';
 $string['time'] = 'Time';
+$string['versioncontrolettings'] = 'Settings';
 $string['viewdetails'] = 'View commit';
 $string['nochanges'] = 'No changes were found to commit';
 $string['commitsuccess'] = 'Changes successfully committed';
