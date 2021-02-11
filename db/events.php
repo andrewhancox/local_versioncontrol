@@ -82,3 +82,9 @@ foreach ($questionevents as $eventname) {
             'priority'  => 9999
     ];
 }
+
+$observers[] = [
+        'eventname' => '\core\event\course_created',
+        'callback'  => 'local_versioncontrol\eventhandlers::setcoursedefaults',
+        'priority'  => 9999
+];

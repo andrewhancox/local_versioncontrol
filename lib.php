@@ -90,6 +90,11 @@ function local_versioncontrol_coursemodule_edit_post_actions($data, $course) {
         $repo->set('trackingtype', $data->local_versioncontrol_trackingtype);
         $repo->set('instancetype', repo::INSTANCETYPE_COURSEMODULECONTEXT);
         $repo->set('instanceid', $context->id);
+
+        if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
+            $repo->set('possiblechanges', true);
+        }
+
         $repo->create();
     }
 

@@ -23,6 +23,7 @@
  * @copyright 2021, Andrew Hancox
  */
 
+$string['autoenablefornewcourses'] = 'Default version control setting for new courses';
 $string['autoenableforactivitytype'] = 'Default version control setting for new activities';
 $string['pluginname'] = 'Version control';
 $string['managerepo'] = 'Version control';

@@ -32,6 +32,11 @@ if (!empty($hassiteconfig) && !empty($ADMIN)) {
     $versioncontrolettings = new admin_settingpage('versioncontrolettings',
             new lang_string('versioncontrolettings', 'local_versioncontrol'));
 
+    $versioncontrolettings->add(new admin_setting_configselect('local_versioncontrol/autoenablefornewcourses',
+            new lang_string('autoenablefornewcourses', 'local_versioncontrol'),
+            '',
+            repo::TRACKINGTYPE_NONE, repo::gettrackingtypes()));
+
     $versioncontrolettings->add(new admin_setting_heading('autoenableforactivitytype',
             new lang_string('autoenableforactivitytype', 'local_versioncontrol'), ''));
 

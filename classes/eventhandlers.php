@@ -27,6 +27,7 @@ namespace local_versioncontrol;
 
 use context_course;
 use core\event\base;
+use core\event\course_created;
 use core\event\course_module_updated;
 use core\event\question_base;
 
@@ -76,6 +77,39 @@ class eventhandlers {
         }
 
         local_versioncontrol_showwarnings();
+    }
+
+    /**
+     * @param course_created $event
+     */
+    public static function setcoursedefaults(base $event) {
+        $repo = repo::get_record(['instanceid' => $event->contextid, 'instancetype' => repo::INSTANCETYPE_COURSECONTEXT]);
+
+        if (!empty($repo)) {
+            return;
+        }
+
+        $defaultfornewcourses = get_config('local_versioncontrol', 'autoenablefornewcourses');
+
+        if (empty($defaultfornewcourses) || $defaultfornewcourses == repo::TRACKINGTYPE_NONE) {
+            return;
+        }
+
+        $repo = new repo();
+        $repo->from_record((object)
+        [
+                'instanceid'      => $event->contextid,
+                'instancetype'    => repo::INSTANCETYPE_COURSECONTEXT,
+                'trackingtype'    => $defaultfornewcourses,
+                'possiblechanges' => true
+        ]
+        );
+
+        $repo->create();
+
+        if ($defaultfornewcourses == repo::TRACKINGTYPE_AUTOMATIC) {
+            $repo->commitchanges($event->userid, time());
+        }
     }
 
     public static function questionchange(question_base $event) {
