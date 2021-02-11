@@ -65,7 +65,7 @@ $form = new commitform($url->out(false));
 if ($form->is_cancelled()) {
     redirect($redirect);
 } else if ($data = $form->get_data()) {
-    $changeset = $repo->commitchanges($USER->id, time(), $data->message);
+    $changeset = $repo->queuecommitchangestask($USER->id, time(), $data->message);
 
     if ($changeset === false) {
         redirect($redirect, get_string('nochanges', 'local_versioncontrol'), 0, notification::NOTIFY_WARNING);

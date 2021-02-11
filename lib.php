@@ -99,7 +99,7 @@ function local_versioncontrol_coursemodule_edit_post_actions($data, $course) {
     }
 
     if ($repo->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
-        $repo->commitchanges($USER->id, time());
+        $repo->queuecommitchangestask($USER->id, time());
     } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
         $repo->set('possiblechanges', true);
         $repo->update();

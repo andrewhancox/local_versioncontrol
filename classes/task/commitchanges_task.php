@@ -23,10 +23,27 @@
  * @copyright 2021, Andrew Hancox
  */
 
+namespace local_versioncontrol\task;
+
+use core\task\adhoc_task;
+use local_courseresetter\courseresetter;
+use local_versioncontrol\repo;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2021020401;
-$plugin->requires  = 2015051100; // Moodle 3.9.
-$plugin->component = 'local_versioncontrol';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0 (Build: 2021020400)';
+class commitchanges_task extends adhoc_task {
+
+    /**
+     * Run the task.
+     */
+    public function execute() {
+        $data = $this->get_custom_data();
+        $repo = new repo($data->repoid);
+
+        if (empty($repo->get('id'))) {
+            return;
+        }
+
+        $repo->commitchanges($data->userid, $data->committime, $data->commitmessage);
+    }
+}

@@ -31,7 +31,9 @@ use context;
 use core\persistent;
 use core_user;
 use Cz\Git\GitRepository;
+use local_versioncontrol\task\commitchanges_task;
 use PharData;
+use core\task\manager;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -95,6 +97,18 @@ class repo extends persistent {
         $contextid = $this->get('instanceid');
         $instancetype = $this->get('instancetype');
         return "$CFG->dataroot/local_versioncontrol/$instancetype/$contextid/";
+    }
+
+    public function queuecommitchangestask($userid, $timecreated, $message = null) {
+        $task = new commitchanges_task();
+        $task->set_custom_data(['repoid'        => $this->get('id'),
+                                'userid'        => $userid,
+                                'committime'    => $timecreated,
+                                'commitmessage' => $message]);
+        manager::queue_adhoc_task($task);
+
+        $this->set('possiblechanges', false);
+        $this->update();
     }
 
     public function commitchanges($userid, $timecreated, $message = null) {

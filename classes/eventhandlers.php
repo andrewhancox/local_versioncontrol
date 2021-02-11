@@ -67,7 +67,7 @@ class eventhandlers {
             }
 
             if ($repo->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
-                $repo->commitchanges($event->userid, $event->timecreated);
+                $repo->queuecommitchangestask($event->userid, $event->timecreated);
             } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
                 $repo->set('possiblechanges', true);
                 $repo->save();
@@ -108,7 +108,7 @@ class eventhandlers {
         $repo->create();
 
         if ($defaultfornewcourses == repo::TRACKINGTYPE_AUTOMATIC) {
-            $repo->commitchanges($event->userid, time());
+            $repo->queuecommitchangestask($event->userid, time());
         }
     }
 
@@ -128,7 +128,7 @@ class eventhandlers {
             $repo = new repo($reporecord->id);
 
             if ($repo->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
-                $repo->commitchanges($event->userid, $event->timecreated);
+                $repo->queuecommitchangestask($event->userid, $event->timecreated);
             } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
                 $repo->set('possiblechanges', true);
                 $repo->save();
