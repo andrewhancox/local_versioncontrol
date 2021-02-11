@@ -15,9 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * @package local_versioncontrol
  * @author Andrew Hancox <andrewdchancox@googlemail.com>
- * @package local
- * @subpackage fielddefaults
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
  */
 
 defined('MOODLE_INTERNAL') || die();

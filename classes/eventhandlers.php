@@ -14,8 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package local_versioncontrol
+ * @author Andrew Hancox <andrewdchancox@googlemail.com>
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
+ */
+
 namespace local_versioncontrol;
 
+use context_course;
 use core\event\base;
 use core\event\course_module_updated;
 use core\event\question_base;
@@ -36,7 +46,7 @@ class eventhandlers {
                 'instanceid'   => $event->contextid
         ]);
 
-        $coursecontext = \context_course::instance($event->courseid);
+        $coursecontext = context_course::instance($event->courseid);
         $courserepo = repo::get_record([
                 'instancetype' => repo::INSTANCETYPE_COURSECONTEXT,
                 'instanceid'   => $coursecontext->id

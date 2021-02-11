@@ -15,13 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A form for fielddefault upload.
- *
- * @package    core_fielddefault
- * @copyright  2014 Marina Glancy
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package local_versioncontrol
+ * @author Andrew Hancox <andrewdchancox@googlemail.com>
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
  */
 
+use local_versioncontrol\commits_table;
 use local_versioncontrol\repo;
 use local_versioncontrol\repoform;
 
@@ -57,7 +59,7 @@ $PAGE->set_heading($title);
 
 $repo = repo::get_record(['instanceid' => $instanceid, 'instancetype' => $instancetype]);
 if (!$repo) {
-    $repo = new \local_versioncontrol\repo();
+    $repo = new repo();
     $repo->set('instanceid', $instanceid);
     $repo->set('instancetype', $instancetype);
 } else {
@@ -74,7 +76,7 @@ if ($form->handlepostback() || $form->is_cancelled()) {
 }
 
 if ($repo->get('id')) {
-    $table = new \local_versioncontrol\commits_table(['repoid' => $repo->get('id')],
+    $table = new commits_table(['repoid' => $repo->get('id')],
             optional_param('tsort', 'id', PARAM_ALPHA));
     $table->define_baseurl($url);
 }

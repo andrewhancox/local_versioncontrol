@@ -15,12 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * @package local_versioncontrol
  * @author Andrew Hancox <andrewdchancox@googlemail.com>
- * @package local
- * @subpackage certification
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
  */
 
 namespace local_versioncontrol;
+
+use moodle_url;
+use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -28,7 +34,7 @@ global $CFG;
 require_once($CFG->dirroot . '/lib/tablelib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
-class commits_table extends \table_sql {
+class commits_table extends table_sql {
     public function __construct($filterparams, $sortcolumn) {
         parent::__construct('managecommits_table');
 
@@ -69,16 +75,16 @@ class commits_table extends \table_sql {
 
         $out = '';
         $icon = $OUTPUT->pix_icon('t/download', get_string('download', 'local_versioncontrol'));
-        $url = new \moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id, 'download' => true]);
+        $url = new moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id, 'download' => true]);
         $out .= $OUTPUT->action_link($url, $icon);
 
         $icon = $OUTPUT->pix_icon('t/viewdetails', get_string('viewdetails', 'local_versioncontrol'));
-        $url = new \moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id]);
+        $url = new moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id]);
         $out .= $OUTPUT->action_link($url, $icon);
 
         if ($this->currentrow < ($this->totalrows - 1)) {
             $icon = $OUTPUT->pix_icon('t/copy', get_string('comparetohead', 'local_versioncontrol'));
-            $url = new \moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id, 'comparetohead' => true]);
+            $url = new moodle_url('/local/versioncontrol/viewchangeset.php', ['commitid' => $commit->id, 'comparetohead' => true]);
             $out .= $OUTPUT->action_link($url, $icon);
         }
 

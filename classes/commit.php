@@ -8,26 +8,24 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR changeset.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class for loading/storing data changesets from the DB.
- *
- * @package    local_versioncontrol
- * @copyright  2018 David Monllao
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package local_versioncontrol
+ * @author Andrew Hancox <andrewdchancox@googlemail.com>
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
  */
 
 namespace local_versioncontrol;
 
-use backup;
-use backup_controller;
-use Cz\Git\GitRepository;
-use PharData;
+use core\persistent;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2018 David Monllao
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class commit extends \core\persistent {
+class commit extends persistent {
 
     /**
      * Database table.
@@ -51,13 +49,13 @@ class commit extends \core\persistent {
      */
     protected static function define_properties() {
         return array(
-                'message'   => array(
+                'message' => array(
                         'type' => PARAM_TEXT
                 ),
-                'githash'   => array(
+                'githash' => array(
                         'type' => PARAM_TEXT
                 ),
-                'repoid' => array(
+                'repoid'  => array(
                         'type' => PARAM_INT
                 ),
         );

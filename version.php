@@ -15,17 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
- *
- * @package   local_vouchers
- * @copyright 2016 Davo Smith, Synergy Learning
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package local_versioncontrol
+ * @author Andrew Hancox <andrewdchancox@googlemail.com>
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016052409;
-$plugin->requires  = 2015051100; // Moodle 2.9.
+$plugin->version   = 2021020400;
+$plugin->requires  = 2015051100; // Moodle 3.9.
 $plugin->component = 'local_versioncontrol';
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '2.9+ (Build: 2016052400)';
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '1.0 (Build: 2021020400)';

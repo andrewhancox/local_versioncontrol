@@ -8,24 +8,28 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR changeset.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class for loading/storing data changesets from the DB.
- *
- * @package    local_versioncontrol
- * @copyright  2018 David Monllao
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package local_versioncontrol
+ * @author Andrew Hancox <andrewdchancox@googlemail.com>
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
  */
 
 namespace local_versioncontrol;
 
 use backup;
 use backup_controller;
+use context;
+use core\persistent;
+use core_user;
 use Cz\Git\GitRepository;
 use PharData;
 
@@ -37,7 +41,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2018 David Monllao
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class repo extends \core\persistent {
+class repo extends persistent {
 
     /**
      * Database table.
@@ -107,6 +111,7 @@ class repo extends \core\persistent {
         $contextid = $this->get('instanceid');
         $instancetype = $this->get('instancetype');
 
+        $backuptype = null;
         if ($instancetype == self::INSTANCETYPE_COURSEMODULECONTEXT) {
             $backuptype = backup::TYPE_1ACTIVITY;
         } else if ($instancetype == self::INSTANCETYPE_COURSECONTEXT) {
@@ -117,7 +122,7 @@ class repo extends \core\persistent {
 
         $tempfilename = 'backup' . '_' . $timecreated . '_' . $contextid . '_' . random_string(5);
 
-        $context = \context::instance_by_id($contextid);
+        $context = context::instance_by_id($contextid);
 
         $bc = new backup_controller($backuptype, $context->instanceid, backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid);
@@ -170,7 +175,7 @@ class repo extends \core\persistent {
             return false;
         }
 
-        $user = \core_user::get_user($userid);
+        $user = core_user::get_user($userid);
         $fullname = fullname($user);
         $author = "$fullname <$user->email>";
         $githash = $repo->addAllChanges()->commit($message, ['--author' => $author])->getLastCommitId();

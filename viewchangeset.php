@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,20 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A form for voucher upload.
- *
- * @package    core_voucher
- * @copyright  2014 Marina Glancy
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package local_versioncontrol
+ * @author Andrew Hancox <andrewdchancox@googlemail.com>
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
  */
+
+use local_versioncontrol\commit;
+use local_versioncontrol\repo;
 
 require_once(dirname(__FILE__) . '/../../config.php');
 
 $commitid = required_param('commitid', PARAM_INT);
 $comparetohead = optional_param('comparetohead', false, PARAM_BOOL);
 
-$commit = new \local_versioncontrol\commit($commitid);
-$repo = new \local_versioncontrol\repo($commit->get('repoid'));
+$commit = new commit($commitid);
+$repo = new repo($commit->get('repoid'));
 
 $context = context::instance_by_id($repo->get('instanceid'));
 

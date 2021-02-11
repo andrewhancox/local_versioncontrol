@@ -14,13 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package local_versioncontrol
+ * @author Andrew Hancox <andrewdchancox@googlemail.com>
+ * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
+ * @link https://opensourcelearning.co.uk
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2021, Andrew Hancox
+ */
+
 use core\output\notification;
 use local_versioncontrol\commitform;
+use local_versioncontrol\repo;
 
 require_once(dirname(__FILE__) . '/../../config.php');
 $repoid = required_param('repo', PARAM_INT);
 
-$repo = new \local_versioncontrol\repo($repoid);
+$repo = new repo($repoid);
 
 $instancetype = $repo->get('instancetype');
 
