@@ -65,6 +65,14 @@ class repo extends persistent {
         ];
     }
 
+    public static function gettrackingtypes_machinenames() {
+        return [
+                'none'   => self::TRACKINGTYPE_NONE,
+                'manual' => self::TRACKINGTYPE_MANUAL,
+                'auto'   => self::TRACKINGTYPE_AUTOMATIC,
+        ];
+    }
+
     /**
      * Return the definition of the properties of this model.
      *
