@@ -120,7 +120,7 @@ class repo extends persistent {
     }
 
     public function commitchanges($userid, $timecreated, $message = null) {
-        global $CFG;
+        global $CFG, $DB;
 
         if (!isset($message)) {
             $message = $timecreated;
@@ -176,6 +176,7 @@ class repo extends persistent {
             $repo = new GitRepository($reporoot);
         }
 
+        $tempfolder = rtrim($tempfolder, '/');
         $phar = new PharData($tempfolder . '/' . $tempfilename . '.tar.gz');
         $phar->decompress(); // creates /path/to/my.tar
         $phar->extractTo($reporoot, null, true);
@@ -206,10 +207,11 @@ class repo extends persistent {
         $changeset->set('githash', $githash);
         $changeset->set('message', $message);
         $changeset->set('repoid', $this->get('id'));
-        $changeset->set('usermodified', $userid);
         $changeset->set('timecreated', $timecreated);
         $changeset->set('timemodified', $timecreated);
         $changeset->save();
+
+        $DB->update_record(self::TABLE, (object)['id' => $changeset->get('id'), 'usermodified' => $userid]);
 
         $this->set('possiblechanges', false);
         $this->update();
