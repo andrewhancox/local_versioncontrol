@@ -207,11 +207,9 @@ class repo extends persistent {
         $changeset->set('githash', $githash);
         $changeset->set('message', $message);
         $changeset->set('repoid', $this->get('id'));
-        $changeset->set('timecreated', $timecreated);
-        $changeset->set('timemodified', $timecreated);
         $changeset->save();
 
-        $DB->update_record(self::TABLE, (object)['id' => $changeset->get('id'), 'usermodified' => $userid]);
+        $DB->update_record(commit::TABLE, (object)['id' => $changeset->get('id'), 'usermodified' => $userid]);
 
         $this->set('possiblechanges', false);
         $this->update();
