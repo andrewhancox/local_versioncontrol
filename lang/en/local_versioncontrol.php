@@ -51,3 +51,4 @@ $string['changesdetectedactivity'] = 'You have made changes to this activity whi
 $string['changesdetectedcourse'] = 'You have made changes to this course which have not been committed to version control';
 $string['message'] = 'Commit message (description of changes)';
 $string['messagecol'] = 'Commit message';
+$string['versioncontrol:manage'] = 'Manage version control';
