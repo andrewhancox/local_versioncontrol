@@ -121,7 +121,7 @@ class eventhandlers {
          inner join {course_modules} cm on cm.id = ctx.instanceid
          inner join {quiz_slots} qs on qs.quizid = cm.instance
          inner join {question} q on q.id = qs.questionid
-         inner join {local_versioncontrol_repo} repo on repo.instanceid = ctx.id and rep.instancetype = :instancetype
+         inner join {local_versioncontrol_repo} repo on repo.instanceid = ctx.id and repo.instancetype = :instancetype
          where q.id = :questionid', ['questionid' => $questionid, 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT]);
 
         foreach ($reporecords as $reporecord) {
