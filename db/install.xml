@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/versioncontrol/db" VERSION="20180904" COMMENT="XMLDB file for Moodle tool/dataprivacy"
+<XMLDB PATH="local/versioncontrol/db" VERSION="20180904" COMMENT="XMLDB file for Moodle local/versioncontrol"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >

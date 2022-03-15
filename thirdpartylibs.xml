@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>lib</location>
+    <name>Git-PHP</name>
+    <license>BSD</license>
+    <version>3</version>
+    <licenseversion>2013</licenseversion>
+  </library>
+  <library>
+    <location>lib/diff2html.js</location>
+    <name>jQuery-QueryBuilder</name>
+    <license>MIT</license>
+    <licenseversion>2014</licenseversion>
+  </library>
+</libraries>

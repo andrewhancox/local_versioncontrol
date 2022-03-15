@@ -5,8 +5,8 @@
  * @author  Jan Pecha, <janpecha@email.cz>
  * @author (Minor enhancements) Andrew Hancox <andrewdchancox@googlemail.com>
  * @author (Minor enhancements) Open Source Learning <enquiries@opensourcelearning.co.uk>
- * @link (Minor enhancements) https://opensourcelearning.co.uk
- * @license New BSD License (BSD-3), see file license.md
+ * @link https://github.com/czproject/git-php
+ * @license New BSD License (BSD-3), see https://github.com/czproject/git-php/blob/master/license.md
  */
 
 namespace Cz\Git;
