@@ -40,7 +40,6 @@ require_login();
 require_capability('local/versioncontrol:manage', $context);
 
 $url = new moodle_url('/local/versioncontrol/makecommit.php', ['repo' => $repoid]);
-list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
@@ -55,6 +54,8 @@ if ($context->contextlevel == CONTEXT_MODULE) {
     $redirect = new moodle_url("/course/view.php", ['id' => $course->id]);
     $title = get_string('commitforcourse', 'local_versioncontrol', format_string($course->fullname));
     $PAGE->set_course($course);
+} else {
+    print_error('Context type not supported');
 }
 
 $PAGE->set_title($title);
