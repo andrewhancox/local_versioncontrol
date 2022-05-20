@@ -46,17 +46,16 @@ $PAGE->set_url($url);
 
 if ($context->contextlevel == CONTEXT_MODULE) {
     list($course, $cm) = get_course_and_cm_from_cmid($context->instanceid);
-    $redirect = new moodle_url($cm->url);
     $title = get_string('commitforactivity', 'local_versioncontrol', $cm->get_formatted_name());
     $PAGE->set_cm($cm);
 } else if ($context->contextlevel == CONTEXT_COURSE) {
     $course = get_course($context->instanceid);
-    $redirect = new moodle_url("/course/view.php", ['id' => $course->id]);
     $title = get_string('commitforcourse', 'local_versioncontrol', format_string($course->fullname));
     $PAGE->set_course($course);
 } else {
     print_error('Context type not supported');
 }
+$redirect = $context->get_url();
 
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
