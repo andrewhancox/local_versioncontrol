@@ -180,7 +180,15 @@ class repo extends persistent {
         $phar = new PharData($tempfolder . '/' . $tempfilename . '.tar.gz');
         $phar->decompress(); // creates /path/to/my.tar
         $phar->extractTo($reporoot, null, true);
-        unlink($tempfolder . '/' . $tempfilename . '.tar.gz');
+
+        $files = glob($tempfolder . '/*');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+
+        rmdir($tempfolder);
 
         $unwantedfiles = ['moodle_backup.log', '.ARCHIVE_INDEX'];
         foreach ($unwantedfiles as $unwantedfile) {

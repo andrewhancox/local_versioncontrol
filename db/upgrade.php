@@ -44,5 +44,24 @@ function xmldb_local_versioncontrol_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016052409, 'local', 'versioncontrol');
     }
 
+    if ($oldversion < 2021020405) {
+        global $CFG;
+
+        $folders = glob($CFG->tempdir . '/local_versioncontrol_*');
+        foreach ($folders as $tempfolder) {
+            $files = glob($tempfolder . '/*');
+
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+
+            rmdir($tempfolder);
+        }
+
+        upgrade_plugin_savepoint(true, 2021020405, 'local', 'versioncontrol');
+    }
+
     return true;
 }
