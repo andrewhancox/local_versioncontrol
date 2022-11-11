@@ -120,7 +120,10 @@ class eventhandlers {
         $reporecords = $DB->get_records_sql('select repo.* from {context} ctx
          inner join {course_modules} cm on cm.id = ctx.instanceid
          inner join {quiz_slots} qs on qs.quizid = cm.instance
-         inner join {question} q on q.id = qs.questionid
+         inner join {question_references} qr on qr.itemid = qs.id
+         inner JOIN {question_bank_entries} qbe ON qbe.id = qr.questionbankentryid
+         inner JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
+         inner join {question} q on q.id = qv.questionid
          inner join {local_versioncontrol_repo} repo on repo.instanceid = ctx.id and repo.instancetype = :instancetype
          where q.id = :questionid', ['questionid' => $questionid, 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT]);
 
