@@ -53,7 +53,7 @@ if ($context->contextlevel == CONTEXT_MODULE) {
     $title = get_string('commitforcourse', 'local_versioncontrol', format_string($course->fullname));
     $PAGE->set_course($course);
 } else {
-    print_error('Context type not supported');
+    throw new \moodle_exception('Context type not supported');
 }
 $redirect = $context->get_url();
 

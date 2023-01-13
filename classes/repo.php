@@ -139,7 +139,7 @@ class repo extends persistent {
         } else if ($instancetype == self::INSTANCETYPE_COURSECONTEXT) {
             $backuptype = backup::TYPE_1COURSE;
         } else {
-            print_error('Unsupported repo type');
+            throw new \moodle_exception('Unsupported repo type');
         }
 
         $tempfilename = 'backup' . '_' . $timecreated . '_' . $contextid . '_' . random_string(5);
