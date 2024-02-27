@@ -66,7 +66,7 @@ if (optional_param('download', false, PARAM_BOOL)) {
 $PAGE->requires->js(new moodle_url('/local/versioncontrol/lib/diff2html.js'));
 $PAGE->requires->css(new moodle_url('https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css'));
 
-$PAGE->requires->js_call_amd('local_versioncontrol/diffrenderer', 'init',
+\local_versioncontrol\lib::js_call_amd_suppress_warning('local_versioncontrol/diffrenderer', 'init',
         ['changeset' => $repo->getchangeset($commit, $comparetohead)]);
 
 echo $OUTPUT->header();
