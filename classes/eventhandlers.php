@@ -44,13 +44,13 @@ class eventhandlers {
 
         $cmrepo = repo::get_record([
                 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
-                'instanceid'   => $event->contextid
+                'instanceid'   => $event->contextid,
         ]);
 
         $coursecontext = context_course::instance($event->courseid);
         $courserepo = repo::get_record([
                 'instancetype' => repo::INSTANCETYPE_COURSECONTEXT,
-                'instanceid'   => $coursecontext->id
+                'instanceid'   => $coursecontext->id,
         ]);
 
         $repos = [];
@@ -101,7 +101,7 @@ class eventhandlers {
                 'instanceid'      => $event->contextid,
                 'instancetype'    => repo::INSTANCETYPE_COURSECONTEXT,
                 'trackingtype'    => $defaultfornewcourses,
-                'possiblechanges' => true
+                'possiblechanges' => true,
         ]
         );
 

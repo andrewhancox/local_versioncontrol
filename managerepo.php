@@ -67,7 +67,7 @@ if (!$repo) {
 }
 
 $customdata = [
-        'persistent' => $repo
+        'persistent' => $repo,
 ];
 $form = new repoform($url->out(false), $customdata);
 

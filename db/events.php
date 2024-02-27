@@ -66,25 +66,25 @@ foreach ($events as $eventname) {
     $observers[] = [
             'eventname' => $eventname,
             'callback'  => 'local_versioncontrol\eventhandlers::recordchange',
-            'priority'  => 9999
+            'priority'  => 9999,
     ];
 }
 
 $questionevents = [
         '\core\event\question_updated',
-        '\core\event\question_created'
+        '\core\event\question_created',
 ];
 
 foreach ($questionevents as $eventname) {
     $observers[] = [
             'eventname' => $eventname,
             'callback'  => 'local_versioncontrol\eventhandlers::questionchange',
-            'priority'  => 9999
+            'priority'  => 9999,
     ];
 }
 
 $observers[] = [
         'eventname' => '\core\event\course_created',
         'callback'  => 'local_versioncontrol\eventhandlers::setcoursedefaults',
-        'priority'  => 9999
+        'priority'  => 9999,
 ];

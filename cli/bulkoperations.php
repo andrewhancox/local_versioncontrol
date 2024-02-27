@@ -43,7 +43,7 @@ $shortparams = [
         'h' => 'help',
         'a' => 'activitytype',
         't' => 'trackingtype',
-        'o' => 'overridecurrent'
+        'o' => 'overridecurrent',
 ];
 
 // now get cli options
@@ -104,7 +104,7 @@ if ($activitytype !== '' && $trackingtype !== '') {
     foreach ($ctxs as $ctx) {
         $cmrepo = repo::get_record([
                 'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
-                'instanceid'   => $ctx->id
+                'instanceid'   => $ctx->id,
         ]);
 
         if (!$overridecurrent && $cmrepo && !empty($cmrepo->get('id'))) {
@@ -116,7 +116,7 @@ if ($activitytype !== '' && $trackingtype !== '') {
             $cmrepo->from_record((object) [
                     'instancetype' => repo::INSTANCETYPE_COURSEMODULECONTEXT,
                     'instanceid'   => $ctx->id,
-                    'trackingtype' => repo::gettrackingtypes_machinenames()[$trackingtype]
+                    'trackingtype' => repo::gettrackingtypes_machinenames()[$trackingtype],
             ]);
             $cmrepo->save();
         } else {

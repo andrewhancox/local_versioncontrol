@@ -45,7 +45,7 @@ class commits_table extends table_sql {
                 get_string('time', 'local_versioncontrol'),
                 get_string('message', 'local_versioncontrol'),
                 'unused',
-                ''
+                '',
         ]);
         $this->collapsible(false);
         $this->sortable(true);

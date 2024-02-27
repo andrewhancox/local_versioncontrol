@@ -35,7 +35,7 @@ class commitform extends \moodleform {
     function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('textarea', 'message', get_string('message', 'local_versioncontrol'), array('rows' => 4, 'cols' => 60));
+        $mform->addElement('textarea', 'message', get_string('message', 'local_versioncontrol'), ['rows' => 4, 'cols' => 60]);
         $mform->addRule('message', get_string('required'), 'required');
         $mform->setType('message', PARAM_TEXT);
 

@@ -25,10 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    'local/versioncontrol:manage' => array(
+$capabilities = [
+    'local/versioncontrol:manage' => [
         'riskbitmask'  => RISK_CONFIG,
         'captype'      => 'write',
         'contextlevel' => CONTEXT_MODULE,
-    ),
-);
+    ],
+];

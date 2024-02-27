@@ -48,16 +48,16 @@ class commit extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        return array(
-                'message' => array(
-                        'type' => PARAM_TEXT
-                ),
-                'githash' => array(
-                        'type' => PARAM_TEXT
-                ),
-                'repoid'  => array(
-                        'type' => PARAM_INT
-                ),
-        );
+        return [
+                'message' => [
+                        'type' => PARAM_TEXT,
+                ],
+                'githash' => [
+                        'type' => PARAM_TEXT,
+                ],
+                'repoid'  => [
+                        'type' => PARAM_INT,
+                ],
+        ];
     }
 }

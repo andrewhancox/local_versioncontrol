@@ -79,24 +79,24 @@ class repo extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        return array(
-                'instancetype'    => array(
+        return [
+                'instancetype'    => [
                         'type'    => PARAM_INT,
                         'choices' => [self::INSTANCETYPE_COURSEMODULECONTEXT, self::INSTANCETYPE_COURSECONTEXT],
-                ),
-                'instanceid'      => array(
+                ],
+                'instanceid'      => [
                         'type' => PARAM_INT,
-                ),
-                'possiblechanges' => array(
+                ],
+                'possiblechanges' => [
                         'type'    => PARAM_BOOL,
-                        'default' => 0
-                ),
-                'trackingtype'    => array(
+                        'default' => 0,
+                ],
+                'trackingtype'    => [
                         'type'    => PARAM_INT,
                         'choices' => [self::TRACKINGTYPE_NONE, self::TRACKINGTYPE_MANUAL, self::TRACKINGTYPE_AUTOMATIC],
-                        'default' => self::TRACKINGTYPE_NONE
-                ),
-        );
+                        'default' => self::TRACKINGTYPE_NONE,
+                ],
+        ];
     }
 
     private function getrepodirectory() {
@@ -112,7 +112,7 @@ class repo extends persistent {
         $task->set_custom_data(['repoid'        => $this->get('id'),
                                 'userid'        => $userid,
                                 'committime'    => $timecreated,
-                                'commitmessage' => $message]);
+                                'commitmessage' => $message, ]);
         manager::queue_adhoc_task($task);
 
         $this->set('possiblechanges', false);
@@ -192,9 +192,9 @@ class repo extends persistent {
 
         $unwantedfiles = ['moodle_backup.log', '.ARCHIVE_INDEX'];
         foreach ($unwantedfiles as $unwantedfile) {
-            $archive_index = $reporoot . $unwantedfile;
-            if (file_exists($archive_index)) {
-                unlink($archive_index); // delete file
+            $archiveindex = $reporoot . $unwantedfile;
+            if (file_exists($archiveindex)) {
+                unlink($archiveindex); // delete file
             }
         }
 
@@ -246,7 +246,7 @@ class repo extends persistent {
         } else {
             $previouscommitsinmoodle = commit::get_records_select('repoid = :repoid and id < :id', [
                     'repoid' => $commit->get('repoid'),
-                    'id'     => $commit->get('id')
+                    'id'     => $commit->get('id'),
             ], 'id desc');
             if (!$previouscommitsinmoodle) {
                 $compareto = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'; // Empty sha (prior to first commit)
