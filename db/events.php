@@ -31,6 +31,7 @@ $events = [
         '\mod_book\event\chapter_deleted',
         '\mod_book\event\chapter_updated',
         '\mod_data\event\field_created',
+        '\mod_checklist\event\checklist_updated',
         '\mod_data\event\field_deleted',
         '\mod_data\event\field_updated',
         '\mod_data\event\template_updated',
