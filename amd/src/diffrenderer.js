@@ -17,7 +17,6 @@
  * Adds support for confirmation via JS modal for some management actions at the Manage policies page.
  *
  * @module      local_versioncontrol/diffrenderer
- * @package     local_versioncontrol
  * @copyright   2018 David Mudrák <david@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,11 +26,6 @@ define(['Diff2Html'
     "use strict";
 
     return {
-        /**
-         * Factory method returning instance of the formenhancements
-         *
-         * @return {formenhancements}
-         */
         init: function(diffString) {
 
             var diffHtml = Diff2Html.html(diffString);
