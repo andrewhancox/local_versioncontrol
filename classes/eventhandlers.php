@@ -76,7 +76,7 @@ class eventhandlers {
             self::$repodebouncer[$repo->get('id')] = $repo->get('id');
         }
 
-        local_versioncontrol_showwarnings();
+        lib::showwarnings();
     }
 
     /**

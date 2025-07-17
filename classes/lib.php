@@ -25,6 +25,11 @@
 
 namespace local_versioncontrol;
 
+use context_course;
+use core\notification;
+use html_writer;
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -43,5 +48,78 @@ class lib {
         $PAGE->requires->js_call_amd($fullmodule, $func, $params);
 
         $CFG->debugdeveloper = $temp;
+    }
+
+    public static function showwarnings() {
+        global $PAGE, $SESSION;
+
+        static $debounced;
+
+        if ($debounced == true) {
+            return;
+        }
+        $debounced = true;
+
+        $context = $PAGE->context;
+
+        if (!has_capability('local/versioncontrol:manage', $context)) {
+            return;
+        }
+
+        if ($PAGE->pagetype == 'local-versioncontrol-makecommit') {
+            return;
+        }
+
+        // Have we already done notifications (on this page load or a previous one).
+        if (isset($SESSION->notifications)) {
+            foreach ($SESSION->notifications as $notification) {
+                if (strpos($notification->message, 'makecommit.php') !== false) {
+                    return;
+                }
+            }
+        }
+
+        if ($context->contextlevel == CONTEXT_MODULE) {
+            $cmrepo = repo::get_record([
+                'instancetype'    => repo::INSTANCETYPE_COURSEMODULECONTEXT,
+                'instanceid'      => $context->id,
+                'possiblechanges' => true
+            ]);
+        }
+
+        $coursecontext = context_course::instance($PAGE->course->id);
+        $courserepo = repo::get_record([
+            'instancetype'    => repo::INSTANCETYPE_COURSECONTEXT,
+            'instanceid'      => $coursecontext->id,
+            'possiblechanges' => true
+        ]);
+
+        $repos = [];
+        if (!empty($cmrepo)) {
+            $repos[] = $cmrepo;
+        }
+        if (!empty($courserepo)) {
+            $repos[] = $courserepo;
+        }
+
+        foreach ($repos as $repo) {
+            if ($repo->get('instancetype') == repo::INSTANCETYPE_COURSECONTEXT) {
+                $str = 'changesdetectedcourse';
+            } else if ($repo->get('instancetype') == repo::INSTANCETYPE_COURSEMODULECONTEXT) {
+                $str = 'changesdetectedactivity';
+            }
+
+            notification::warning(
+                get_string($str, 'local_versioncontrol')
+                .
+                ": "
+                .
+                html_writer::link(
+                    new moodle_url('/local/versioncontrol/makecommit.php',
+                        ['repo' => $repo->get('id')]),
+                    get_string('makecommit', 'local_versioncontrol')
+                )
+            );
+        }
     }
 }
