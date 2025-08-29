@@ -147,13 +147,14 @@ class repo extends persistent {
         $context = context::instance_by_id($contextid);
 
         $bc = new backup_controller($backuptype, $context->instanceid, backup::FORMAT_MOODLE,
-                backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid);
+                backup::INTERACTIVE_NO, backup::MODE_GENERAL, get_admin()->id);
         $bc->get_plan()->get_setting('anonymize')->set_value(true);
         $bc->get_plan()->get_setting('filename')->set_value($tempfilename);
         $bc->get_plan()->get_setting('users')->set_value(false);
         $bc->get_plan()->get_setting('logs')->set_value(false);
         $bc->execute_plan();
         $results = $bc->get_results();
+        $bc->destroy();
         $file = $results['backup_destination'];
 
         $reporoot = $this->getrepodirectory();
