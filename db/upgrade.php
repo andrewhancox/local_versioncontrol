@@ -65,15 +65,13 @@ function xmldb_local_versioncontrol_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021020405, 'local', 'versioncontrol');
     }
 
-    // TODO: Replace temp version
-    $tempversion = 2025082901;
-    if ($oldversion < $tempversion) {
+    if ($oldversion < 2025083000) {
         global $CFG;
 
         // Add default enabled events to the table on upgrade.
         local_versioncontrol_upgrader::add_default_enabled_events();
 
-        upgrade_plugin_savepoint(true, $tempversion, 'local', 'versioncontrol');
+        upgrade_plugin_savepoint(true, 2025083000, 'local', 'versioncontrol');
     }
 
     return true;
