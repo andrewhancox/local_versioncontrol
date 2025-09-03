@@ -48,4 +48,7 @@ if (!empty($hassiteconfig) && !empty($ADMIN)) {
     }
 
     $ADMIN->add('versioncontrol', $versioncontrolettings);
+
+    $ADMIN->add('versioncontrol', new admin_externalpage('manageevents', get_string('manageevents', 'local_versioncontrol'),
+            new moodle_url('/local/versioncontrol/manageevents.php'), 'local/versioncontrol:manage'));
 }

@@ -22,18 +22,11 @@
  */
 
 require_once(dirname(__FILE__) . '/../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
 
-$systemcontext = context_system::instance();
-
-require_login();
-require_capability('local/versioncontrol:manage', $systemcontext);
+admin_externalpage_setup('manageevents');
 
 $action = optional_param('action', '', PARAM_ALPHA);
-
-$url = new moodle_url('/local/versioncontrol/manageevents.php');
-
-$PAGE->set_context($systemcontext);
-$PAGE->set_url($url);
 
 // Handle actions
 $eventschecked = optional_param_array('eventschecked', array(), PARAM_RAW);

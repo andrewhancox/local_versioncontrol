@@ -56,6 +56,7 @@ $string['trackingtype_30'] = 'Automatic';
 $string['versioncontrol:manage'] = 'Manage version control';
 $string['versioncontrolettings'] = 'Settings';
 $string['selectevent'] = 'Select event {$a}';
+$string['manageevents'] = 'Manage events';
 $string['viewcommittoactivity'] = 'View change to activity: {$a}';
 $string['viewcommittocourse'] = 'View change to course: {$a}';
 $string['viewdetails'] = 'View commit';
