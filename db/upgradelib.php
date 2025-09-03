@@ -64,6 +64,9 @@ class local_versioncontrol_upgrader {
         '\core\event\course_section_updated',
         '\core\event\course_section_created',
         '\core\event\course_updated',
+        '\core\event\course_created',
+        '\core\event\question_updated',
+        '\core\event\question_created',
     ];
 
     /**

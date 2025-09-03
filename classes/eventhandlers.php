@@ -39,7 +39,7 @@ class eventhandlers {
         $enabledevents = self::get_enabled_events();
 
         // Check if current event is not enabled
-        if (!isset($enabledevents[$event->eventname])) {
+        if (!in_array($event->eventname, (array) $enabledevents)) {
             // Event is not enabled, do nothing more!
             return;
         }
@@ -47,14 +47,14 @@ class eventhandlers {
         // Check for specific events otherwise go to the default 'get_enabled_events'
         switch ($event->eventname) {
             case '\core\event\course_created':
-                self::questionchange($event);
-                break;
-            case '\core\event\course_updated':
-            case '\core\event\course_created':
                 self::setcoursedefaults($event);
                 break;
+            case '\core\event\question_updated':
+            case '\core\event\question_created':
+                self::questionchange($event);
+                break;
             default:
-                self::get_enabled_events();
+                self::recordchange($event);
                 break;
         }
 
@@ -177,9 +177,9 @@ class eventhandlers {
 
         // Set cache list when not present
         if ($enabledevents === false) {
-            $records = $DB->get_records('local_versioncontrol_enabledevent');
+            $records = $DB->get_records_menu('local_versioncontrol_enabledevent', [], '', 'eventname');
             $cache = \cache::make('local_versioncontrol', 'enabledevents');
-            $cache->set('enabledevents', $records);
+            $cache->set('enabledevents', array_keys($records));
 
             $enabledevents = $cache->get('enabledevents');
         }
