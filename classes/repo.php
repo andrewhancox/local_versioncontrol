@@ -30,12 +30,19 @@ use backup_controller;
 use context;
 use core\persistent;
 use core_user;
+use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use local_versioncontrol\task\commitchanges_task;
 use PharData;
 use core\task\manager;
 
 defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
+require_once($CFG->dirroot . '/local/versioncontrol/lib/GitException.php');
+require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
+require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
 /**
  * Class for loading/storing data changesets from the DB.
@@ -91,6 +98,10 @@ class repo extends persistent {
                         'type'    => PARAM_BOOL,
                         'default' => 0,
                 ],
+                'remote' => [
+                        'type'    => PARAM_TEXT,
+                        'default' => '',
+                ],
                 'trackingtype'    => [
                         'type'    => PARAM_INT,
                         'choices' => [self::TRACKINGTYPE_NONE, self::TRACKINGTYPE_MANUAL, self::TRACKINGTYPE_AUTOMATIC],
@@ -125,10 +136,6 @@ class repo extends persistent {
         if (!isset($message)) {
             $message = $timecreated;
         }
-
-        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
-        require_once($CFG->dirroot . '/local/versioncontrol/lib/IGit.php');
-        require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
 
         $contextid = $this->get('instanceid');
         $instancetype = $this->get('instancetype');
@@ -171,10 +178,21 @@ class repo extends persistent {
             }
         }
 
+        $branchname = "context_$contextid" . "_$CFG->siteidentifier";
+
         if (!file_exists($reporoot . ".git")) {
             $repo = GitRepository::init($reporoot);
+            $repo->moveBranch("$branchname");
         } else {
-            $repo = new GitRepository($reporoot);
+            $repo = $this->getgitrepo();
+
+            if (!in_array($branchname, $repo->getBranches())) {
+                $repo->createBranch($branchname, true);
+            }
+
+            if ($repo->getCurrentBranchName() != $branchname) {
+                $repo->checkout($branchname);
+            }
         }
 
         $tempfolder = rtrim($tempfolder, '/');
@@ -226,21 +244,46 @@ class repo extends persistent {
         return $changeset;
     }
 
+    private function getgitrepo(): ?GitRepository {
+        try {
+            $repo = new GitRepository($this->getrepodirectory());
+        } catch (GitException $ex) {
+            return null;
+        }
+
+        return $repo;
+    }
+
+    public function pushchanges() {
+        if (empty($this->get('remote'))) {
+            return false;
+        }
+
+        $repo = $this->getgitrepo();
+
+        if (empty($repo)) {
+            return false;
+        }
+
+        $remotes = $repo->listRemotes();
+        if (key_exists('origin', $remotes) && $remotes['origin'] != $this->get('remote')) {
+            $repo->removeRemote('origin');
+            $repo->addRemote('origin', $this->get('remote'));
+        } else if (!key_exists('origin', $remotes)) {
+            $repo->addRemote('origin', $this->get('remote'));
+        }
+
+        $repo->config('core.sshCommand', "ssh -i " . get_config('local_versioncontrol', 'gitsshkey'));
+        $repo->config('push.autoSetupRemote', 'true');
+        $repo->push('origin');
+    }
+
     public function archive(commit $commit) {
-        global $CFG;
-
-        require_once($CFG->dirroot . '/local/versioncontrol/lib/IGit.php');
-        require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
-
         $repo = new GitRepository($this->getrepodirectory());
         return $repo->archive($commit->get('githash'));
     }
 
     public function getchangeset(commit $commit, $comparetohead) {
-        global $CFG;
-
-        require_once($CFG->dirroot . '/local/versioncontrol/lib/IGit.php');
-        require_once($CFG->dirroot . '/local/versioncontrol/lib/GitRepository.php');
 
         if ($comparetohead) {
             $compareto = 'HEAD';

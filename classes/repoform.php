@@ -44,6 +44,9 @@ class repoform extends persistent {
         $mform->addElement('select', 'trackingtype', get_string('trackingtype', 'local_versioncontrol'), repo::gettrackingtypes(),
                 ['required' => 'required']);
 
+        $mform->addElement('text', 'remote', get_string('remote', 'local_versioncontrol'));
+        $mform->setType('remote', PARAM_TEXT);
+
         $this->add_action_buttons();
     }
 

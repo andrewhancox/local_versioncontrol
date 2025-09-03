@@ -37,6 +37,11 @@ if (!empty($hassiteconfig) && !empty($ADMIN)) {
             '',
             repo::TRACKINGTYPE_NONE, repo::gettrackingtypes()));
 
+    $versioncontrolettings->add(new admin_setting_configtext('local_versioncontrol/gitsshkey',
+        new lang_string('gitsshkey', 'local_versioncontrol'),
+        '',
+        ''));
+
     $versioncontrolettings->add(new admin_setting_heading('autoenableforactivitytype',
             new lang_string('autoenableforactivitytype', 'local_versioncontrol'), ''));
 

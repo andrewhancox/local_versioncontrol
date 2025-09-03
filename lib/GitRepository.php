@@ -1,7 +1,5 @@
 <?php
 /**
- * Default implementation of IGit interface
- *
  * @author  Jan Pecha, <janpecha@email.cz>
  * @author (Minor enhancements) Andrew Hancox <andrewdchancox@googlemail.com>
  * @author (Minor enhancements) Open Source Learning <enquiries@opensourcelearning.co.uk>
@@ -11,7 +9,7 @@
 
 namespace Cz\Git;
 
-class GitRepository implements IGit {
+class GitRepository {
     /** @var  string */
     protected $repository;
 
@@ -167,6 +165,22 @@ class GitRepository implements IGit {
     }
 
     /**
+     * Removes branch.
+     * `git branch -d <name>`
+     *
+     * @param string
+     * @return self
+     * @throws GitException
+     */
+    public function moveBranch($name) {
+        return $this->begin()
+                ->run('git branch', array(
+                        '-m' => $name,
+                ))
+                ->end();
+    }
+
+    /**
      * Gets name of current branch
      * `git branch` + magic
      *
@@ -198,9 +212,15 @@ class GitRepository implements IGit {
      * @throws GitException
      */
     public function getBranches() {
-        return $this->extractFromCommand('git branch -a', function($value) {
+        $output = $this->extractFromCommand('git branch -a', function($value) {
             return trim(substr($value, 1));
         });
+
+        if (empty($output)) {
+            return [];
+        } else {
+            return $output;
+        }
     }
 
     /**
@@ -461,6 +481,35 @@ class GitRepository implements IGit {
     }
 
     /**
+     * Run fetch command to get latest branches
+     *
+     * @param string|NULL
+     * @param array|NULL
+     * @return self
+     * @throws GitException
+     */
+    public function config($parameter, $value) {
+        return $this->begin()
+                ->run("git config set $parameter '$value'")
+                ->end();
+    }
+
+    public function listRemotes() {
+        // Make sure the `git status` gets a refreshed look at the working tree.
+        $this->begin()
+            ->run('git remote')
+            ->end();
+
+        $output = $this->extractFromCommand('git remote');
+
+        if (empty($output)) {
+            return [];
+        }
+
+        return explode(' ', trim($output[0]))[0];
+    }
+
+    /**
      * Adds new remote repository
      *
      * @param string
@@ -625,6 +674,8 @@ class GitRepository implements IGit {
      * @throws GitException
      */
     protected function run($cmd/*, $options = NULL*/) {
+        global $CFG;
+
         $this->lastrunoutput = false;
 
         $args = func_get_args();
@@ -632,7 +683,14 @@ class GitRepository implements IGit {
         exec($cmd . ' 2>&1', $this->lastrunoutput, $ret);
 
         if ($ret !== 0) {
-            throw new GitException("Command '$cmd' failed (exit-code $ret).", $ret);
+            $error = "Command '$cmd' failed (exit-code $ret).";
+
+            if ($CFG->debugdisplay) {
+                $output = implode("\n", $this->lastrunoutput);
+                $error .= "\n $output";
+            }
+
+            throw new GitException($error, $ret);
         }
 
         return $this;
