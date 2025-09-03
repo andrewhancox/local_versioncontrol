@@ -25,6 +25,7 @@
 
 use core\notification;
 use local_versioncontrol\repo;
+use local_versioncontrol\lib;
 
 /**
  * Inject the competencies elements into all moodle module settings forms.
@@ -144,5 +145,32 @@ function local_versioncontrol_extend_settings_navigation(settings_navigation $na
                             ['repo' => $repo->get('id')])
             );
         }
+    }
+}
+
+/**
+ *
+ * We use this callback to temporarily disable contextlocking (freezing)
+ * only for the current user that have uncommitted changes
+ * and everyone else get context locked UI
+ *
+ * @param $courseorid
+ * @param $autologinguest
+ * @param $cm
+ * @param $setwantsurltome
+ * @param $preventredirect
+ * @return void
+ * @throws coding_exception
+ */
+function local_versioncontrol_after_require_login($courseorid = null, $autologinguest = null, $cm = null,
+                                                  $setwantsurltome = null, $preventredirect = null): void {
+
+    global $USER, $CFG;
+
+    $cm_repo = lib::get_repo();
+    if ((int)$USER->id == $cm_repo->get('lockedtouserid') ) {
+        $CFG->contextlocking = false;
+    } else {
+        $CFG->contextlocking = true;
     }
 }
