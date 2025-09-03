@@ -44,14 +44,19 @@ final class commitchanges_test extends \advanced_testcase {
         $persistent->commitchanges($teacher->id, time(), 'initial commit');
         $this->assertFalse(repo::get_record(['id' => $persistent->get('id')])->get('possiblechanges'));
 
+        $this->setUser($teacher);
         $chapter2 = $bookgenerator->create_chapter(array('bookid' => $book->id, "pagenum" => 2));
         $event = \mod_book\event\chapter_created::create_from_chapter($book, $context, $chapter2);
         $event->trigger();
-        $this->assertTrue(repo::get_record(['id' => $persistent->get('id')])->get('possiblechanges'));
+        $repo = repo::get_record(['id' => $persistent->get('id')]);
+        $this->assertTrue($repo->get('possiblechanges'));
+        $this->assertEquals($teacher->id, $repo->get('lockedtouserid'));
 
         repo::get_record(['id' => $persistent->get('id')])
             ->commitchanges($teacher->id, time(), 'chapter 2');
 
-        $this->assertFalse(repo::get_record(['id' => $persistent->get('id')])->get('possiblechanges'));
+        $repo = repo::get_record(['id' => $persistent->get('id')]);
+        $this->assertFalse($repo->get('possiblechanges'));
+        $this->assertEquals(0, $repo->get('lockedtouserid'));
     }
 }

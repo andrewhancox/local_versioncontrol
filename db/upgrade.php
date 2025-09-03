@@ -63,5 +63,20 @@ function xmldb_local_versioncontrol_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021020405, 'local', 'versioncontrol');
     }
 
+    if ($oldversion < 2025090100) {
+        // Define table message_popup_notifications to be created.
+        $table = new xmldb_table('local_versioncontrol_repo');
+
+        $field = new xmldb_field('lockedtouserid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Conditionally launch add field lawfulbases.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Quiz savepoint reached.
+        upgrade_plugin_savepoint(true, 2025090100, 'local', 'versioncontrol');
+    }
+
     return true;
 }

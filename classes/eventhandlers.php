@@ -70,6 +70,7 @@ class eventhandlers {
                 $repo->queuecommitchangestask($event->userid, $event->timecreated);
             } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
                 $repo->set('possiblechanges', true);
+                $repo->set('lockedtouserid',  $event->userid);
                 $repo->save();
             }
 
@@ -102,6 +103,7 @@ class eventhandlers {
                 'instancetype'    => repo::INSTANCETYPE_COURSECONTEXT,
                 'trackingtype'    => $defaultfornewcourses,
                 'possiblechanges' => true,
+                'lockedtouserid'=>  $event->userid,
         ]
         );
 
@@ -134,6 +136,7 @@ class eventhandlers {
                 $repo->queuecommitchangestask($event->userid, $event->timecreated);
             } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL && !$repo->get('possiblechanges')) {
                 $repo->set('possiblechanges', true);
+                $repo->set('lockedtouserid',  0);
                 $repo->save();
             }
         }
