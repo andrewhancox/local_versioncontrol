@@ -60,3 +60,5 @@ $string['manageevents'] = 'Manage events';
 $string['viewcommittoactivity'] = 'View change to activity: {$a}';
 $string['viewcommittocourse'] = 'View change to course: {$a}';
 $string['viewdetails'] = 'View commit';
+
+$string['cachedef_enabledevents'] = 'This is a list of all enabled events for working with version control.';

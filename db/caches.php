@@ -15,18 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package local_versioncontrol
- * @author Andrew Hancox <andrewdchancox@googlemail.com>
- * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
- * @link https://opensourcelearning.co.uk
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @copyright 2021, Andrew Hancox
+ * TODO describe file cache
+ *
+ * @package    local_versioncontrol
+ * @copyright  2025 YOUR NAME <your@email.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$observers = [];
+defined('MOODLE_INTERNAL') || die();
 
-$observers[] = [
-        'eventname' => '*',
-        'callback'  => 'local_versioncontrol\eventhandlers::verifyevents',
-        'priority'  => 9999,
+$definitions = [
+    'enabledevents' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        // 'simplekeys' => true,
+        // 'simpledata' => true,
+        'staticacceleration' => true,
+    ],
 ];

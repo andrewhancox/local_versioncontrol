@@ -34,6 +34,33 @@ use core\event\question_base;
 class eventhandlers {
     static $repodebouncer = [];
 
+    public static function verifyevents(base $event) {
+        // Get list of enabled events from cache
+        $enabledevents = self::get_enabled_events();
+
+        // Check if current event is not enabled
+        if (!isset($enabledevents[$event->eventname])) {
+            // Event is not enabled, do nothing more!
+            return;
+        }
+
+        // Check for specific events otherwise go to the default 'get_enabled_events'
+        switch ($event->eventname) {
+            case '\core\event\course_created':
+                self::questionchange($event);
+                break;
+            case '\core\event\course_updated':
+            case '\core\event\course_created':
+                self::setcoursedefaults($event);
+                break;
+            default:
+                self::get_enabled_events();
+                break;
+        }
+
+        return;
+    }
+
     /**
      * @param course_module_updated $event
      */
@@ -137,5 +164,26 @@ class eventhandlers {
                 $repo->save();
             }
         }
+    }
+
+    /**
+     * Store all enabled event records in the 'enabledevents' cache.
+     */
+    private static function get_enabled_events() {
+        global $DB;
+
+        $cache = \cache::make('local_versioncontrol', 'enabledevents');
+        $enabledevents = $cache->get('enabledevents');
+
+        // Set cache list when not present
+        if ($enabledevents === false) {
+            $records = $DB->get_records('local_versioncontrol_enabledevent');
+            $cache = \cache::make('local_versioncontrol', 'enabledevents');
+            $cache->set('enabledevents', $records);
+
+            $enabledevents = $cache->get('enabledevents');
+        }
+
+        return $enabledevents;
     }
 }
