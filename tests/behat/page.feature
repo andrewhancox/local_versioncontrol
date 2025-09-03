@@ -25,7 +25,7 @@ Feature: on a page, make changes to the page
     And I am on "Course 1" course homepage with editing mode on
 
   Scenario: Change the content of a page
-  Given I am on the "PageName1" "page activity editing" page logged in as admin
+  Given I am on the "test page" "page activity editing" page logged in as admin
     And I expand all fieldsets    
     And I set the page content to "content after changing"
     And I press "Save and display"
