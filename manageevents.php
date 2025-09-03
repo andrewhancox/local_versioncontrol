@@ -28,47 +28,87 @@ $systemcontext = context_system::instance();
 require_login();
 require_capability('local/versioncontrol:manage', $systemcontext);
 
+$action = optional_param('action', '', PARAM_ALPHA);
+
 $url = new moodle_url('/local/versioncontrol/manageevents.php');
 
 $PAGE->set_context($systemcontext);
 $PAGE->set_url($url);
+
+// Handle actions
+$eventschecked = optional_param_array('eventschecked', array(), PARAM_RAW);
+
+if ($action === 'enable') {
+    if ($eventschecked) {
+        require_sesskey();
+        // Enable selected events
+        foreach ($eventschecked as $eventname) {
+            $record = new stdClass();
+            $record->eventname = $eventname;
+            $record->timecreated = time();
+            try {
+                $DB->insert_record('local_versioncontrol_enabledevent', $record);
+            } catch (dml_exception $e) {
+                debugging('Exception: ' . $e->getMessage() . ', event: ' . $eventname . ', record: ' . print_r($record, true));
+                // Record might already exist, ignore duplicate errors
+            }
+        }
+        \core\notification::success(get_string('eventsenabled', 'local_versioncontrol'));
+    }
+    redirect($PAGE->url);
+} else if ($action === 'disable') {
+    if ($eventschecked) {
+        require_sesskey();
+        // Disable selected events
+        list($insql, $params) = $DB->get_in_or_equal($eventschecked, SQL_PARAMS_NAMED);
+        $DB->delete_records_select('local_versioncontrol_enabledevent', "eventname $insql", $params);
+        \core\notification::success(get_string('eventsdisabled', 'local_versioncontrol'));
+    }
+    redirect($PAGE->url);
+}
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading('Events', 3);
 
 $completelist = report_eventlist_list_generator::get_all_events_list();
 
+// Get enabled events from database
+$enabledevents = $DB->get_fieldset_select('local_versioncontrol_enabledevent', 'eventname', '');
+
 echo $OUTPUT->box_start('eventlist');
 echo $OUTPUT->heading('Table with Events', 4);
 
-$baseurl = new moodle_url('/local/versioncontrol/manageevents.php');
-$tablecourse = new local_versioncontrol_events_table('feedback_template_course_table', $baseurl);
-$tablecourse->display($completelist);
+// Render the table and action buttons inside a single form
+if (!empty($completelist)) {
+    echo '<form class="event-management-form" method="post" action="' . $PAGE->url->out_omit_querystring() . '">';
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+    // Action buttons at the top
+    echo html_writer::tag('button', get_string('enableselected', 'local_versioncontrol'),
+        array('id' => 'event-management-enable-top', 'type' => 'submit',
+              'class' => 'eventenableselected btn btn-primary', 'name' => 'action', 'value' => 'enable'));
+    echo ' ';
+    echo html_writer::tag('button', get_string('disableselected', 'local_versioncontrol'),
+        array('id' => 'event-management-disable-top', 'type' => 'submit',
+              'class' => 'eventdisableselected btn btn-secondary', 'name' => 'action', 'value' => 'disable'));
+
+    $baseurl = new moodle_url('/local/versioncontrol/manageevents.php');
+    $tablecourse = new local_versioncontrol_events_table('feedback_template_course_table', $baseurl, $enabledevents);
+    $tablecourse->display($completelist);
+
+    // Action buttons at the bottom
+    echo html_writer::tag('button', get_string('enableselected', 'local_versioncontrol'),
+        array('id' => 'event-management-enable-bottom', 'type' => 'submit',
+              'class' => 'eventenableselected btn btn-primary', 'name' => 'action', 'value' => 'enable'));
+    echo ' ';
+    echo html_writer::tag('button', get_string('disableselected', 'local_versioncontrol'),
+        array('id' => 'event-management-disable-bottom', 'type' => 'submit',
+              'class' => 'eventdisableselected btn btn-secondary', 'name' => 'action', 'value' => 'disable'));
+    echo '</form>';
+}
+
 echo $OUTPUT->box_end();
 
+// Initialize JavaScript for checkbox toggle functionality (like tag management)
+$PAGE->requires->js_call_amd('core/tag', 'initManagePage', array());
+
 echo $OUTPUT->footer();
-
-// // Retrieve all events in a list.
-// $completelist = report_eventlist_list_generator::get_all_events_list();
-
-// $tabledata = array();
-// $components = array();
-// $edulevel = array('0' => get_string('all', 'report_eventlist'));
-// $crud = array('0' => get_string('all', 'report_eventlist'));
-// foreach ($completelist as $value) {
-//     $components[] = explode('\\', $value['eventname'])[1];
-//     $edulevel[] = $value['edulevel'];
-//     $crud[] = $value['crud'];
-//     $tabledata[] = (object)$value;
-// }
-// $components = array_unique($components);
-// $edulevel = array_unique($edulevel);
-// $crud = array_unique($crud);
-
-// // Create the filter form for the table.
-// $filtersection = new report_eventlist_filter_form(null, array('components' => $components, 'edulevel' => $edulevel,
-//         'crud' => $crud));
-
-// // Output.
-// $renderer = $PAGE->get_renderer('report_eventlist');
-// echo $renderer->render_event_list($filtersection, $tabledata);
