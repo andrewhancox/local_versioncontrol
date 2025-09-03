@@ -24,7 +24,7 @@
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-admin_externalpage_setup('manageevents');
+admin_externalpage_setup('local_versioncontrol_manageevents');
 
 $action = optional_param('action', '', PARAM_ALPHA);
 
