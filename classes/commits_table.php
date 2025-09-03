@@ -35,6 +35,8 @@ require_once($CFG->dirroot . '/lib/tablelib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
 class commits_table extends table_sql {
+    private mixed $filterparams;
+
     public function __construct($filterparams, $sortcolumn) {
         parent::__construct('managecommits_table');
 
