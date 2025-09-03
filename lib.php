@@ -93,6 +93,7 @@ function local_versioncontrol_coursemodule_edit_post_actions($data, $course) {
 
         if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
             $repo->set('possiblechanges', true);
+            $repo->set('lockedtouserid',  $USER->id);
         }
 
         $repo->create();
@@ -102,6 +103,7 @@ function local_versioncontrol_coursemodule_edit_post_actions($data, $course) {
         $repo->queuecommitchangestask($USER->id, time());
     } else if ($repo->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
         $repo->set('possiblechanges', true);
+        $repo->set('lockedtouserid',  $USER->id);
         $repo->update();
     }
 

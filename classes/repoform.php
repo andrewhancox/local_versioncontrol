@@ -70,6 +70,7 @@ class repoform extends persistent {
             $persistent->queuecommitchangestask($USER->id, time());
         } else if ($persistent->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
             $persistent->set('possiblechanges', true);
+            $persistent->set('lockedtouserid',  $USER->id);
             $persistent->update();
         }
 

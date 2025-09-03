@@ -91,6 +91,10 @@ class repo extends persistent {
                         'type'    => PARAM_BOOL,
                         'default' => 0,
                 ],
+                'lockedtouserid' => [
+                        'type'    => PARAM_INT,
+                        'default' => 0,
+                ],
                 'trackingtype'    => [
                         'type'    => PARAM_INT,
                         'choices' => [self::TRACKINGTYPE_NONE, self::TRACKINGTYPE_MANUAL, self::TRACKINGTYPE_AUTOMATIC],
@@ -116,6 +120,7 @@ class repo extends persistent {
         manager::queue_adhoc_task($task);
 
         $this->set('possiblechanges', false);
+        $this->set('lockedtouserid', 0);
         $this->update();
     }
 
@@ -221,6 +226,7 @@ class repo extends persistent {
         $DB->update_record(commit::TABLE, (object)['id' => $changeset->get('id'), 'usermodified' => $userid]);
 
         $this->set('possiblechanges', false);
+        $this->set('lockedtouserid',  0);
         $this->update();
 
         return $changeset;
