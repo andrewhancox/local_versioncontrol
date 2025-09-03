@@ -23,6 +23,8 @@
  * @copyright 2021, Andrew Hancox
  */
 
+require_once(__DIR__ . '/upgradelib.php');
+
 function xmldb_local_versioncontrol_upgrade($oldversion) {
 
     global $DB;
@@ -61,6 +63,17 @@ function xmldb_local_versioncontrol_upgrade($oldversion) {
         }
 
         upgrade_plugin_savepoint(true, 2021020405, 'local', 'versioncontrol');
+    }
+
+    // TODO: Replace temp version
+    $tempversion = 2025082901;
+    if ($oldversion < $tempversion) {
+        global $CFG;
+
+        // Add default enabled events to the table on upgrade.
+        local_versioncontrol_upgrader::add_default_enabled_events();
+
+        upgrade_plugin_savepoint(true, $tempversion, 'local', 'versioncontrol');
     }
 
     return true;
