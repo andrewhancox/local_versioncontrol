@@ -23,6 +23,8 @@
  * @copyright 2021, Andrew Hancox
  */
 
+require_once(__DIR__ . '/upgradelib.php');
+
 function xmldb_local_versioncontrol_upgrade($oldversion) {
 
     global $DB;
@@ -61,6 +63,29 @@ function xmldb_local_versioncontrol_upgrade($oldversion) {
         }
 
         upgrade_plugin_savepoint(true, 2021020405, 'local', 'versioncontrol');
+    }
+
+    if ($oldversion < 2025082900) {
+        $table = new xmldb_table('local_versioncontrol_enabledevent');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('eventname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2025082900, 'local', 'versioncontrol');
+    }
+
+    if ($oldversion < 2025083000) {
+        global $CFG;
+
+        // Add default enabled events to the table on upgrade.
+        local_versioncontrol_upgrader::add_default_enabled_events();
+
+        upgrade_plugin_savepoint(true, 2025083000, 'local', 'versioncontrol');
     }
 
     return true;

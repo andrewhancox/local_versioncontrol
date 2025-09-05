@@ -15,18 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package local_versioncontrol
- * @author Andrew Hancox <andrewdchancox@googlemail.com>
- * @author Open Source Learning <enquiries@opensourcelearning.co.uk>
- * @link https://opensourcelearning.co.uk
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @copyright 2021, Andrew Hancox
+ * TODO describe file cache
+ *
+ * @package    local_versioncontrol
+ * @copyright  2025 YOUR NAME <your@email.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025083000;
-$plugin->requires  = 2015051100; // Moodle 3.9.
-$plugin->component = 'local_versioncontrol';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0 (Build: 2021020400)';
+$definitions = [
+    'enabledevents' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        // 'simplekeys' => true,
+        // 'simpledata' => true,
+        'staticacceleration' => true,
+    ],
+];
