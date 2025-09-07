@@ -50,6 +50,28 @@ class lib {
         $CFG->debugdeveloper = $temp;
     }
 
+    /**
+     *
+     * Get the context (module level) repo object
+     *
+     * @return false|repo|\stdClass
+     */
+    public static function get_repo() {
+        global $PAGE;
+
+        $context = $PAGE->context;
+        $cmrepo = new \stdClass();
+
+        if ($context->contextlevel == CONTEXT_MODULE) {
+            $cmrepo = repo::get_record([
+                'instancetype'    => repo::INSTANCETYPE_COURSEMODULECONTEXT,
+                'instanceid'      => $context->id,
+                'possiblechanges' => true
+            ]);
+        }
+
+        return $cmrepo;
+    }
     public static function showwarnings() {
         global $PAGE, $SESSION;
 

@@ -69,8 +69,7 @@ class repoform extends persistent {
         if ($persistent->get('trackingtype') == repo::TRACKINGTYPE_AUTOMATIC) {
             $persistent->queuecommitchangestask($USER->id, time());
         } else if ($persistent->get('trackingtype') == repo::TRACKINGTYPE_MANUAL) {
-            $persistent->set('possiblechanges', true);
-            $persistent->update();
+            $persistent->update_possiblechanges(true, $USER->id);
         }
 
         return true;
