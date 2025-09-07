@@ -45,5 +45,12 @@ class commitchanges_task extends adhoc_task {
         }
 
         $repo->commitchanges($data->userid, $data->committime, $data->commitmessage);
+        // Un freeze contextlocked of the instance for everyone
+        $instanceid = $repo->get('instanceid');
+        $context = \context::instance_by_id($instanceid);
+
+        if ($context) {
+            $context->set_locked(false);
+        }
     }
 }

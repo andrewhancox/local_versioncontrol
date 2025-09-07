@@ -119,9 +119,7 @@ class repo extends persistent {
                                 'commitmessage' => $message, ]);
         manager::queue_adhoc_task($task);
 
-        $this->set('possiblechanges', false);
-        $this->set('lockedtouserid', 0);
-        $this->update();
+        $this->update_possiblechanges(false);
     }
 
     public function commitchanges($userid, $timecreated, $message = null) {
@@ -225,9 +223,7 @@ class repo extends persistent {
 
         $DB->update_record(commit::TABLE, (object)['id' => $changeset->get('id'), 'usermodified' => $userid]);
 
-        $this->set('possiblechanges', false);
-        $this->set('lockedtouserid',  0);
-        $this->update();
+        $this->update_possiblechanges(false);
 
         return $changeset;
     }
@@ -270,5 +266,31 @@ class repo extends persistent {
         $changeset = implode("\n", $changeset);
 
         return $changeset;
+    }
+
+    /**
+     *
+     * Set possiblechanges and userid making those changes
+     * and also lock (freeze) context for all other users
+     * so only editing user can update content until it is commited.
+     *
+     * @param $possiblechangesstate
+     * @param int $userid optional with default to 0
+     * @return void
+     * @throws \coding_exception
+     */
+    public function update_possiblechanges($possiblechangesstate, int $userid = 0) {
+        $this->set('possiblechanges', $possiblechangesstate);
+        $this->set('lockedtouserid',  $userid);
+        $this->save();
+
+        $instanceid = $this->get('instanceid');
+        $context = \context::instance_by_id($instanceid);
+
+        if ($possiblechangesstate === true && $context) {
+            $context->set_locked(true);
+        } elseif ($possiblechangesstate === false && $context) {
+            $context->set_locked(false);
+        }
     }
 }
